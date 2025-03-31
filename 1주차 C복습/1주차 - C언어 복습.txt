@@ -1,0 +1,248 @@
+1번
+#pragma warning (disable:4996)
+#include <stdio.h>
+int sum(int n) {
+	int i,sum0=0;
+	for (i = 1; i <= n; i++) {
+		sum0 += i;
+	}
+	return sum0;
+}
+int main() {
+	int	X,cnt=1,SUM=0;
+	scanf("%d", &X);
+	while (cnt <= X) {
+		SUM += sum(cnt);
+		cnt++;
+	}
+	printf("%d", SUM);
+}
+
+
+
+2번
+#pragma warning (disable:4996)
+#include <stdio.h>
+int ABC(int X[],int k);
+int main() {
+	int X[10], i = 0;
+	for (i = 0; i < 10; i++)
+		scanf("%d", &X[i]);
+
+
+	for (i = 0; i < 10; i++) {
+		ABC(X,i+1);
+	}
+
+	for (i = 0; i < 10; i++)
+		printf(" %d", X[i]);
+}
+int ABC(int X[], int k) {
+	int i, max = X[k-1], tmp, maxi = k-1;
+	for (i = k-1; i <= 9; i++) {
+		if (X[i] > max) {
+			max = X[i];
+			maxi = i;
+		}
+	}
+	tmp = X[k - 1];
+	X[k - 1] = X[maxi];
+	X[maxi] = tmp;
+}
+
+
+3번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+int* swap(int* a, int* b) {
+	int temp;
+	temp = *a;
+	*a = *b;
+	*b = temp;
+}	//기본적인 스왑!! (첫 좌변은 temp)
+
+int main() {
+	int N, i, a,b,X[50];
+	scanf("%d", &N);
+	for (i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	scanf("%d %d", &a, &b);
+
+	swap(&X[a], &X[b]);
+
+	for (i = 0; i < N; i++)
+		printf(" %d", X[i]);
+
+
+}
+
+
+4번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+	char X[100],temp;
+	int i, j;
+	scanf("%s", X);	//%s는 scanf든 printf든 그냥 주소값 넣어야함('X')
+	
+	for (i = 0; i < strlen(X); i++) {
+		printf("%s\n", X);
+		temp = X[0];	//항상 처음과 끝의 경우를 주의해서 짤 것. 요렇게 첫 글자 저장
+		for (j = 0; j < strlen(X)-1; j++) 
+			X[j] = X[j + 1];
+		X[strlen(X) - 1] = temp;
+	}
+
+
+}
+
+
+5번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct time {
+	int h, m, s;
+};
+
+int main() {
+	int d1,d2;
+	struct time t1, t2, t0;
+	scanf("%d %d %d", &t1.h, &t1.m, &t1.s);
+	scanf("%d %d %d", &t2.h, &t2.m, &t2.s);
+
+	d1 = t1.h * 3600 + t1.m * 60 + t1.s;
+	d2 = t2.h * 3600 + t2.m * 60 + t2.s;
+
+
+	t0.h = (d2 - d1) / 3600;
+	t0.m = (d2 - d1) % 3600 / 60;
+	t0.s = (d2 - d1) % 60;
+		//시간차 내는 기본적인 알고리즘(총량구하고 빼고 초 기준 단위로 통일하고 몫+나머지)
+
+	printf("%d %d %d", t0.h, t0.m, t0.s);
+
+}
+//구조체 선언하는 법 췤
+
+
+
+
+6번
+#pragma warning(disable:4996)
+#include <stdio.h>
+#include <string.h>
+struct student {
+	char name[10];	//구조체 안에 배열
+	int scr;
+};
+int main() {
+	struct student st[5];	//구조체 배열선언
+	int i, sum = 0;
+	double avg;
+
+	for (i = 0; i < 5; i++) {
+		scanf("%s", st[i].name);	//구조체 안에 문자열 쓸 때 이중으로 '[]'쓰는 상황 인지
+		scanf("%d", &st[i].scr);
+		sum += st[i].scr;
+	}
+
+	avg = sum / 5.0;
+
+	for (i = 0; i < 5; i++) {
+		if (st[i].scr <= avg) 
+			puts(st[i].name);
+	}
+
+	return 0;
+}
+
+
+
+
+7번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+int main() {
+	int N, * A, * B, i;
+	scanf("%d", &N);
+	A = (int*)malloc(sizeof(int) * N);
+	B = (int*)malloc(sizeof(int) * N);
+
+
+	for (i = 0; i < N; i++)
+		scanf("%d", &A[i]);
+
+	for (i = 0; i < N; i++)
+		scanf("%d", &B[i]);
+
+
+	for (i = 0; i < N; i++)
+		printf(" %d", A[i] + B[N -1 - i]);	//역순에서 인덱스 끝 항 갈때 N'-1'인거 기본 인지
+
+	free(A);
+	free(B);	//할당해제 꼭 하고
+
+}
+
+
+
+8번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct student {		//구조체 정의 문법도 기억할 것
+	char name[7];
+	int	lang, eng, math;
+	double avg;
+}ABC;
+
+int main() {
+	int N,i;
+	ABC* st,*begin;
+	scanf("%d", &N);
+	st = (ABC*)malloc(sizeof(ABC) * N);
+
+	if (st == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}			//동적할당 선언 후 => if문, free 필수
+
+
+	begin = st;		//구조체 포인터 훑는 복습(시작포인터 'begin'받아놓고 루프 시작)
+	for (st = begin; st < begin+N; st++) {
+		getchar();		//요거 까먹지말고ㅇㅇ scanf("%s")도 씹히니깐
+		scanf("%s %d %d %d", st->name, &st->lang, &st->eng, &st->math);
+		st->avg = (st->lang + st->eng + st->math) / 3.0;	// '->' 문법 떠올리기( '&'보다 우선순위이므로 위에서 &st->lang = &(st->lang))
+	}	
+
+	st = begin;
+
+	for (i = 0; i < N; i++) {
+		printf("%s %.1lf", st[i].name, st[i].avg);
+		if (st[i].lang >= 90 || st[i].eng >= 90 || st[i].math >= 90)
+			printf(" GREAT");
+
+		if (st[i].lang < 70 || st[i].eng < 70 || st[i].math < 70)
+			printf(" BAD");
+
+		printf("\n");			
+			// i루프문과 begin루프문을 수정하기 귀찮다고 혼용해버리면 대참사 일어남.
+			왜냐면 st를 이미 이전 루프문에서 끝 인덱스 포인터까지 옮겨놨기 때문(주의)
+	}
+
+	free(st);
+
+}

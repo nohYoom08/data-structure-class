@@ -1,0 +1,103 @@
+1번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct Tree {
+	struct Tree* left;
+	struct Tree* right;
+	int data;
+}Tree;
+
+Tree* CreateTree(int data){		//create나 get노드는 웬만하면 진짜 아예 인자 받지 말고 쌩으로 두기. 여기선 코드 줄일려고 문제따라 특수하게 적용한 것 뿐
+	Tree* new;
+	new = (Tree*)malloc(sizeof(Tree));
+	if (new == NULL) {
+		printf("not enough memory!\n");
+		return -1;
+	}
+
+	new->left = NULL;
+	new->right = NULL;
+	new->data = data;
+
+	return new;
+}
+
+void SeekAdd(Tree* tree,int data1, int data2, int data3) {		//아무 기준 없이 일치하는 data찾기면은 탐색과 동시에 문제수행을 해야함. 무조건. 인자가 여러개 생긴다 해도
+	if (tree == NULL)		//아니 tree에 NULL이 왜 들어가 => 기본적인 재귀함수의 끝항처리가 없었으니까(기본)
+		return;
+	if (tree->data == data1) {
+		if(data2!=0)
+			tree->left = CreateTree(data2);
+		if(data3!=0)
+			tree->right = CreateTree(data3);
+	}	
+	SeekAdd(tree->left, data1, data2, data3);	//탐색함수인자에 다 때려박아야 한다
+	SeekAdd(tree->right, data1, data2, data3);
+}
+
+void print(Tree* tree) {
+	if (tree == NULL)
+		return;
+	printf(" %d", tree->data);
+	print(tree->left);
+	print(tree->right);
+}
+
+int main() {
+	int N, M, u, l, r,len;
+	char temp[101];
+	Tree* tree,*tmp_tree;
+	tree = NULL;
+	scanf("%d", &N);
+	for (int i = 0; i < N; i++) {
+		scanf("%d %d %d", &u, &l, &r);
+		if (i == 0) 
+			tree = CreateTree(u);
+
+		SeekAdd(tree, u, l, r);
+	}
+
+
+	scanf("%d", &M);
+	for (int i = 0; i < M; i++) {
+		scanf("%s", temp);
+		len = strlen(temp);
+		tmp_tree = tree;
+		printf(" %d", tmp_tree->data);	//문자열과 상관없이 첫항을 무조건 출력하는 거라면 루프 들어가기전에 처리할 것(첫항이 아닌 0항이므로)
+		for (int j = 0; j < len; j++) {
+			if (temp[j] == 'L')
+				tmp_tree = tmp_tree->left;
+			else if (temp[j] == 'R')
+				tmp_tree = tmp_tree->right;
+
+			if (tmp_tree == NULL)
+				break;
+			else
+				printf(" %d", tmp_tree->data);
+		}
+		printf("\n");
+	}
+
+	return 0;
+}
+
+
+
+9 
+5 3 9
+3 8 15
+8 0 2
+2 0 0
+15 0 0
+9 7 10
+7 12 0
+12 0 0
+10 0 0
+3 
+RLL
+LL
+LR

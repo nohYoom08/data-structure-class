@@ -1,0 +1,179 @@
+1번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	int X[100];
+	int N, M, a, b, tmp;
+	scanf("%d", &N);
+	for (int i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	scanf("%d", &M);
+
+	for (int i = 0; i < M; i++) {
+		scanf("%d %d", &a, &b);
+		while (a < b) {		//for(j=0;j<(a+b+1)/2;j++) => (a+b+1/2) 홀수든 짝수든 정중앙까지 훑을 수 있는 공식.
+					//근데 여기선 a랑 b가 증가해야하므로 굳이 for문 안쓰고 while문으로 조건 어렵게 생각 안하고 풀 수 있음
+			tmp = X[a];
+			X[a] = X[b];
+			X[b] = tmp;
+
+			a++;
+			b--;
+		}
+	}
+
+	for (int i = 0; i < N; i++)
+		printf(" %d", X[i]);
+	
+}
+
+
+2번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	int X[100];
+	int N, M, a1,a2, tmp;
+	scanf("%d", &N);
+	for (int i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	scanf("%d", &M);
+
+	scanf("%d", &a1);		//1회차에선 if i==0으로 첫항처리를 했는데, 이렇게 해도 됨. (max값 처음에 받고 그 다음항에서 for문 돌리듯이)
+	for (int i = 1; i < M; i++) {
+		scanf("%d", &a2);
+		tmp = X[a1];
+		X[a1] = X[a2];
+		X[a2] = tmp;
+		a2 = a1;
+	}
+
+	for (int i = 0; i < N; i++)
+		printf(" %d", X[i]);
+	
+}
+
+3번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	int X[100][100];
+	int N, cnt = 1;;
+	
+	scanf("%d", &N);
+
+	for (int i = 0; i < N; i++) {
+		if ((i + 1) % 2 != 0)
+			for (int j = 0; j < N; j++)
+				X[i][j] = cnt++;
+		else
+			for (int j = N - 1; j >= 0; j--)
+				X[i][j] = cnt++;
+	}
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++)
+			printf(" %d", X[i][j]);
+		printf("\n");
+	}
+}
+
+
+
+4번 - 재귀 ㅁㅊ
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+void snail(int X[][100], int N, int M, int N_s, int N_e, int M_s, int M_e, int i, int f);	//배열 인자로 넣을땐 깝치지 말고 그냥 배열형식 쓰자
+int main() {
+	int N, M,f,cnt,X[100][100];
+	cnt = f = 1;
+	scanf("%d %d", &N, &M);
+	snail(X, N, M,0, N - 1, 0, M - 1, cnt, f);
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++)
+			printf(" %d", X[i][j]);
+		printf("\n");
+	}
+	
+}
+void snail(int X[][100], int N, int M, int Y_s, int Y_e, int X_s, int X_e, int i, int f) {	//X Y알고리즘 쓸거면 변수 이름에 xy 적극적으로 쓰자 헷갈리니까
+	if (i > N * M)
+		return;
+	int tmp, x, y;
+	if (f == 1) {
+		for (x = X_s; x <= X_e; x++) {
+			X[Y_s][x] = i++;
+		}
+		f = 2;
+		snail(X, N, M, Y_s+1, Y_e, X_e, X_s, i, f);	//다음 x(f=3) 알고리즘을 위해 시작 처음위치에 +-1한 것까지 미리 바꿔놓는 생각은 좋은데 그럼 첫 항이 애매해짐
+				//다음 y내려가는 구조의 배열원소 위치에도 영향을 주니까 그냥 시작-끝 위치만 바꿔놓고 다음 함수에서 시작점 바꿔놓을 것(그래야 전부 아다리가 맞음) 
+			//위에 ㄴㄴ 5주차 실습 참고. 시작-끝 순서바꾸는건 문제마다 달라짐. 그냥 웬만하면 다음 경우의수로 넘어갈 때만 역순이랑 +- 같이 넣어줄 것.
+			//언제는 순서바꾸고 언제는 안 바꾸고 이게 더 헷갈림 그냥 다음 경우의 수 때 둘다 결정
+	}
+	else if (f == 2) {
+		for (y = Y_s; y <= Y_e; y++) {
+			X[y][X_s] = i++;
+		}
+		f = 3;
+		snail(X, N, M, Y_e, Y_s, X_s-1, X_e, i, f);		//걍 재귀함수 여러번 돌리는 것도 방법임. 조건이 여러가지여서 매번 교환을 해야한다면.
+	}
+	
+	else if (f == 3) {
+		for (x = X_s; x >= X_e; x--) {
+			X[Y_s][x] = i++;
+		}
+		f = 4;
+		snail(X, N, M, Y_s-1, Y_e, X_e, X_s, i, f);
+	}
+	
+	else if (f == 4) {
+		for (y = Y_s; y >= Y_e; y--) {
+			X[y][X_s] = i++;
+		}
+		f = 1;
+		snail(X, N, M, Y_e, Y_s, X_s+1, X_e, i, f);
+	}
+}
+
+
+
+5번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	int X[100][100];
+	int N, x, y,cnt=1,i,M;	// i훑기로 기준잡고 cnt로 배열 채우고 x y로 좌표잡고(일반적인 i j활용한 반복문 생각하지말것)
+	
+	scanf("%d %d", &N,&M);
+
+	for (i = 0; i < M; i++) 
+		for (x = i, y = 0; x >= 0 && y < N; x--, y++)	//각자 케이스에서 반복문 종료조건 다시 잘 생각해볼 것. x>=0만 있으면 안 되고 y<N일 때도 멈추는거 생각
+			X[y][x] = cnt++;
+		
+	
+
+	for (i = 1; i < N; i++) 
+		for (x = M - 1, y = i; x>=0&&y < N; x--, y++)
+			X[y][x] = cnt++;
+			
+	
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++)
+			printf(" %d", X[i][j]);
+		printf("\n");
+	}
+}

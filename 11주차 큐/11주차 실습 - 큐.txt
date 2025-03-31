@@ -1,0 +1,257 @@
+1번
+#pragma warning(disable:4996)
+
+#include  <stdio.h>
+#include  <string.h>
+#include  <stdlib.h>
+
+typedef int element;
+typedef struct {	//큐 객체 생성 (데이터와 큐객체는 별도 (밑에 2번도 참고))
+	element* queue;
+	int front, rear, size;
+}aQueue;
+
+aQueue* CreateQueue(int size) {	//큐 객체 선언 => size 받고 나머지 값들 초기화(기본. 선언과 동시에 초기화)
+	aQueue* aQ;
+	aQ = (aQueue*)malloc(sizeof(aQueue));
+	aQ->front=0;
+	aQ->rear = 0;
+	aQ->size = size;
+	aQ->queue = (element*)malloc(sizeof(element)*size);
+	for (int i = 0; i < aQ->size; i++)
+		aQ->queue[i] = 0;	//'초기화'
+	return aQ;
+}
+
+int isEmpty(aQueue* aQ) {	//공백, 포화 체크하는 함수 만들어보기
+	if (aQ->front == aQ->rear) {
+		return 1;
+	}
+	else return 0;
+}
+
+int isFull(aQueue* aQ) {
+	if (aQ->front == (aQ->rear + 1) % aQ->size) {	//큐에서의 다음원소 판단은 무조건 +1% 적용
+		return 1;
+	}
+	else return 0;
+}
+
+void Print(aQueue* aQ) {
+	/*int i = aQ->front;
+	do {
+		if (i >= aQ->size)
+			i = i % aQ->size;
+		printf(" %d", aQ->queue[i]);
+		i++;
+	} while (i != (aQ->rear + 1) % aQ->size);*/
+	for (int i = 0; i < aQ->size; i++)
+		printf(" %d", aQ->queue[i]);
+	printf("\n");
+}
+
+int enQueue(aQueue* aQ, element item) {
+	if (isFull(aQ) == 1) {
+		printf("overflow");
+		Print(aQ);
+		return -1;
+	}
+	else {
+		aQ->rear = (aQ->rear + 1) % aQ->size;
+		aQ->queue[aQ->rear] = item;
+	}
+}
+
+int delete(aQueue* aQ) {
+	if (isEmpty(aQ) == 1) {
+		printf("underflow\n");
+		return -1;
+	}
+	else {
+		aQ->front = (aQ->front + 1) % aQ->size;	//특이하게 여기는 지우는 것도 1번부터.
+		aQ->queue[aQ->front] = 0;
+	}
+}
+
+int main() {
+	int q, n,item, re=0;
+	char fx;
+	scanf("%d%d", &q, &n);
+	getchar();
+	aQueue* aQ = CreateQueue(q);
+	for (int i = 0; i < n; i++) {
+		scanf("%c", &fx);
+		getchar();
+		switch (fx) {
+		case 'I':
+			scanf("%d", &item);
+			getchar();
+			re = enQueue(aQ, item);
+			break;
+
+		case 'D':
+			re = delete(aQ);
+			break;
+		
+		case 'P':
+			Print(aQ);
+			break;
+
+		default:
+			break;
+		}
+		if (re == -1)	//문제 잘 읽어볼 것. (프로그램 종료!!)
+			return;
+	}
+	
+}
+
+
+
+
+2번
+#pragma warning(disable:4996)
+
+#include  <stdio.h>
+#include  <string.h>
+#include  <stdlib.h>
+
+typedef struct Node{	//노드 객체 생성
+	int data;
+	struct Node* llink;
+	struct Node* rlink;
+}node;
+
+typedef struct DeQue {	//큐 객체 생성 => 연결리스트를 매개로 front, rear 활용 (평범한 연결리스트에서 head노드 쓰는거라고 생각하면 편함)
+	node* front, *rear;
+}deque;
+
+node* getNode() {
+	node* nD;
+	nD = (node*)malloc(sizeof(node));
+	nD->llink = nD->rlink = NULL;
+	return nD;
+}
+
+deque* CreateDeQue() {
+	deque* dQ;
+	dQ = (deque*)malloc(sizeof(deque));
+	dQ->front = NULL;		//객체 생성하자마자 요소들 초기화(기본)
+	dQ->rear = NULL;
+
+	return dQ;
+}
+
+void add_front(deque* dQ, int item) {
+	node* new = getNode();
+	new->data = item;
+	new->llink = NULL;
+	new->rlink = dQ->front;
+	if (dQ->front == NULL) {
+		dQ->front = new;
+		dQ->rear = new;	//삽입 삭제 모두 공백인 상황에서는 front rear 둘다 챙겨줘야 함(이따 delete함수에서도 해당)
+		return;
+	}
+
+	dQ->front->llink = new;
+	dQ->front = new;
+}
+
+void add_rear(deque* dQ, int item) {
+	node* new = getNode();
+
+	new->data = item;
+	new->rlink = NULL;
+	new->llink = dQ->rear;
+	if (dQ->rear == NULL) {
+		dQ->front = new;
+		dQ->rear = new;
+		return;
+	}
+
+	dQ->rear->rlink = new;
+	dQ->rear = new;
+}
+
+int delete_front(deque* dQ) {
+	node* tmp;
+	if (dQ->front == NULL) {
+		printf("underflow\n");
+		return -1;
+	}
+	tmp = dQ->front;		//삭제는 무조건 매개변수 둘 것(아니면 NULL참조 일어나서 터져버림)
+	dQ->front = dQ->front->rlink;
+	free(tmp);
+
+	if (dQ->front != NULL)	
+		dQ->front->llink = NULL;
+	else
+		dQ->rear = NULL;		//삭제해서 공백되는 경우 => front삭제에서 rear도 챙겨줘야 함 (항상 생각. 공백일 경우는 양쪽 다 설정해줘야 한다!!)
+}
+
+int delete_rear(deque* dQ) {
+	node* tmp;
+	if (dQ->rear == NULL) {
+		printf("underflow\n");
+		return -1;
+	}
+	tmp = dQ->rear;
+	dQ->rear = dQ->rear->llink;
+	free(tmp);
+
+	if (dQ->rear != NULL)
+		dQ->rear->rlink = NULL;
+	else
+		dQ->front = NULL;
+}
+
+void print(deque* dQ) {
+	node* tmp=dQ->front;
+	while (tmp != NULL) {
+		printf(" %d", tmp->data);
+		tmp = tmp->rlink;
+	}
+	printf("\n");
+}
+
+int main() {
+	int N, item, re=0;
+	char fx[3];
+	deque* dQ = CreateDeQue();
+
+	scanf("%d", &N);
+	getchar();
+
+	for (int i = 0; i < N; i++) {
+		scanf("%s", fx);	//이런 식으로도 케이스를 나누기도 하는군
+		getchar();
+		if (strcmp(fx,"AF")==0) {
+			scanf("%d", &item);
+			getchar();
+			add_front(dQ, item);
+		}
+
+		else if (strcmp(fx, "AR") == 0) {
+			scanf("%d", &item);
+			getchar();
+			add_rear(dQ, item);
+		}
+
+		else if (strcmp(fx, "DF") == 0) {
+			re = delete_front(dQ);
+		}
+
+		else if (strcmp(fx, "DR") == 0) {
+			re = delete_rear(dQ);
+		}
+		else if (strcmp(fx, "P") == 0)
+			print(dQ);
+		
+
+		if (re == -1)
+			return 0;
+	}
+
+	return 0;
+}
+

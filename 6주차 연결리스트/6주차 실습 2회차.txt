@@ -1,0 +1,312 @@
+1번
+#include <stdio.h>
+#include <stdlib.h>
+#pragma warning(disable:4996)
+typedef struct ListNode {
+	struct ListNode* llink;
+	char ch;
+	struct ListNode* rlink;
+}listNode;
+
+typedef struct HeadNode {
+	listNode* head;
+	int cnt;
+}headNode;
+
+listNode* getNode();
+void add(headNode* list, int r, char e);
+void delete(headNode* list, int r);
+void get(headNode* list, int r);
+void print(headNode* list);
+
+int main()
+{
+	headNode* list;
+	int N, rank;
+	char ch, fx;
+	list = (headNode*)malloc(sizeof(headNode));
+	if (list == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+	list->head = NULL;			
+	list->cnt = 0;
+
+	scanf("%d", &N);
+	getchar();
+
+	for (int i = 0; i < N; i++) {
+		scanf("%c", &fx);
+		getchar();
+		switch (fx) {
+		case 'A':
+			scanf("%d %c", &rank, &ch);
+			getchar();
+			add(list, rank, ch);
+			break;
+
+		case 'D':
+			scanf("%d", &rank);
+			getchar();
+			delete(list, rank);
+			break;
+
+		case 'G':
+			scanf("%d", &rank);
+			getchar();
+			get(list, rank);
+			break;
+
+		case 'P':
+			print(list);
+			break;
+
+		default:
+			printf("What are you doing?\n");
+		}
+	}
+
+
+	return 0;
+}
+listNode* getNode() {
+	listNode* new;
+	new = (listNode*)malloc(sizeof(listNode));
+	if (new == NULL) {
+		printf("Not enough memory!\n");
+		return NULL;
+	}
+	new->llink = new->rlink = NULL;
+
+	return new;
+}
+void add(headNode* list, int r, char e) {
+	listNode* tmp, * new;
+	int cnt1;
+	new = getNode();
+	new->ch = e;
+
+	if (list->cnt + 1 < r) {
+		printf("invalid position\n");
+		return;
+	}
+
+	if (list->head == NULL) {
+		list->head = new;
+		list->cnt++;
+		return;
+	}
+
+	else {
+		tmp = list->head;
+		cnt1 = 1;
+		while (tmp->rlink!=NULL && cnt1 < r) {
+			tmp = tmp->rlink;
+			cnt1++;
+		}
+		if (r == 1) {
+			new->rlink = tmp;
+			tmp->llink = new;
+			list->head = new;
+			list->cnt++;
+		}
+		else {
+			if (r <= list->cnt)
+				tmp = tmp->llink;
+			new->rlink = tmp->rlink;
+			new->llink = tmp;
+			tmp->rlink = new;
+			if (new->rlink != NULL)
+				new->rlink->llink = new;
+			list->cnt++;
+		}
+
+	}
+}
+void delete(headNode* list, int r) {
+	listNode* tmp;
+	int cnt1;
+	if (list->head == NULL) {
+		printf("invalid position\n");
+		return;
+	}
+
+	if (list->cnt < r) {
+		printf("invalid position\n");
+		return;
+	}
+	else {
+		tmp = list->head;
+		cnt1 = 1;
+		while (cnt1 < r) {
+			tmp = tmp->rlink;
+			cnt1++;
+		}
+
+		if (r == 1) {
+			list->head = tmp->rlink;
+			if(tmp->rlink!=NULL)
+				tmp->rlink->llink = NULL;
+			free(tmp);
+		}
+		else {
+			tmp->llink->rlink = tmp->rlink;
+			if (tmp->rlink != NULL)
+				tmp->rlink->llink = tmp->llink;
+			free(tmp);
+		}
+		list->cnt--;
+	}
+}
+void get(headNode* list, int r) {
+	listNode* tmp;
+	int cnt1;
+	if (list->head == NULL) {
+		printf("invalid position\n");
+		return;
+	}
+
+	if (list->cnt < r) {
+		printf("invalid position\n");
+		return;
+	}
+	else {
+		tmp = list->head;
+		cnt1 = 1;
+		while (cnt1 < r) {
+			tmp = tmp->rlink;
+			cnt1++;
+		}
+		printf("%c\n", tmp->ch);
+	}
+}
+void print(headNode* list) {
+	listNode* tmp;
+	if (list->head == NULL)
+		return;
+	
+	tmp = list->head;
+	while (tmp != NULL) {
+		printf("%c", tmp->ch);
+		tmp = tmp->rlink;
+	}
+	printf("\n");
+}
+
+
+
+
+2번
+#include <stdio.h>
+#include <stdlib.h>
+#pragma warning(disable:4996)
+typedef struct ListNode {
+	struct ListNode* link;
+	int coef;
+	int exp;
+}listNode;
+
+
+listNode* getNode();
+listNode* appendTerm(listNode* k, int c, int e);
+listNode* addPoly(listNode* x, listNode* y);
+
+int main()
+{
+	listNode* A, * B, * At, * Bt, * result, * tmp;
+	int cof, exp;
+	A = B = result = NULL;
+	At = Bt = tmp = NULL;
+	A = getNode();
+	B = getNode();
+
+	
+	int N_A, N_B;
+
+	At = A;
+	scanf("%d", &N_A);
+	for (int i = 0; i < N_A; i++) {
+		scanf("%d %d", &cof, &exp);
+		At = appendTerm(At, cof, exp);
+		
+	}
+
+	Bt = B;
+	scanf("%d", &N_B);
+	for (int i = 0; i < N_B; i++) {
+		scanf("%d %d", &cof, &exp);
+		Bt = appendTerm(Bt, cof, exp);
+
+	}
+
+	result = addPoly(A, B);
+
+	tmp = result->link;	//헤더노드가 있다면 처음 매개포인터에 link해줘야 됨(기본)
+			//헤더노드가 있을 시 tmp=result->link인지 tmp=result인지 잘 판단(삽입인지 단순 출력*개수세기인지로 판단해야 함)
+
+	while (tmp != NULL) {
+		printf(" %d %d", tmp->coef, tmp->exp);
+		tmp = tmp->link;
+	}
+
+	return 0;
+}
+listNode* getNode() {
+	listNode* new;
+	new = (listNode*)malloc(sizeof(listNode));
+	if (new == NULL) {
+		printf("Not enough memory!\n");
+		return NULL;
+	}
+	new->link = NULL;
+
+	return new;
+}
+listNode* appendTerm(listNode* k, int c, int e) {	//헤더노드 있을 때 항 추가하는 함수
+	listNode* new = getNode();
+	new->coef = c;
+	new->exp = e;
+
+	k->link = new;
+	k = new;
+
+	return k;
+}
+listNode* addPoly(listNode* x, listNode* y) {
+	listNode* result = getNode();
+	listNode* tmpx, * tmpy, * tmp;
+	int sum = 0;
+	tmpx = x->link;
+	tmpy = y->link;
+	tmp = result;		//헤더노드가 있을 시 tmp=result->link인지 tmp=result인지 잘 판단(삽입인지 단순 출력*개수세기인지로 판단해야 함)
+
+	while (tmpx != NULL && tmpy != NULL) {
+		if (tmpx->exp > tmpy->exp) {			//coef가 아니라 exp비교하는 거 실수하지 말 것
+			tmp = appendTerm(tmp, tmpx->coef, tmpx->exp);
+			tmpx = tmpx->link;
+		}
+		else if (tmpx->exp < tmpy->exp) {
+			tmp = appendTerm(tmp, tmpy->coef, tmpy->exp);
+			tmpy = tmpy->link;
+		}
+		else {
+			sum = tmpx->coef + tmpy->coef;	//차수 같을 때는 sum을 이용해서 합을 인자로 넣는 것 잊지 말 것
+			if(sum!=0)			//계수가 0일 때 조심
+				tmp = appendTerm(tmp, sum, tmpx->exp);
+			tmpx = tmpx->link;
+			tmpy = tmpy->link;
+		}
+	}
+
+	while (tmpx != NULL) {
+		tmp = appendTerm(tmp, tmpx->coef, tmpx->exp);
+		tmpx = tmpx->link;
+	}
+
+	while (tmpy != NULL) {
+		tmp = appendTerm(tmp, tmpy->coef, tmpy->exp);
+		tmpy = tmpy->link;
+	}
+
+	return result;
+}

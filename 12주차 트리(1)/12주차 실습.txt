@@ -1,0 +1,69 @@
+#pragma warning(disable:4996)
+
+#include  <stdio.h>
+#include  <string.h>
+#include  <stdlib.h>
+
+typedef struct treeNode {
+    int data;
+    int num;
+    struct treeNode* left;
+    struct treeNode* right;
+}treeNode;
+
+treeNode* makeRootNode(int num, int data, treeNode* leftNode, treeNode* rightNode)
+{
+    treeNode* root = (treeNode*)malloc(sizeof(treeNode));
+    root->num = num;
+    root->data = data;
+    root->left = leftNode;
+    root->right = rightNode;
+    return root;
+}
+void Print(treeNode* root)
+{
+    if (root != NULL)
+        printf("%d ", root->data);
+    else
+        return;
+}
+void Seek(treeNode* root, int num)
+{
+    if (root == NULL)
+        return;
+
+    if (root->num == num) {
+        Print(root);
+        Print(root->left);
+        Print(root->right);
+        return;
+    }
+    else {
+        Seek(root->left, num);
+        Seek(root->right, num);
+    }
+}
+
+
+
+
+
+void main()
+{
+    treeNode* F8 = makeRootNode(8,80, NULL, NULL);
+    treeNode* F7 = makeRootNode(7,130, NULL, NULL);
+    treeNode* F6 = makeRootNode(6,120, F7, F8);
+    treeNode* F5 = makeRootNode(5,90, NULL, NULL);
+    treeNode* F4 = makeRootNode(4,70, NULL, NULL);
+    treeNode* F3 = makeRootNode(3,50, NULL, F6);
+    treeNode* F2 = makeRootNode(2,30, F4, F5);
+    treeNode* F1 = makeRootNode(1,20, F2, F3);
+    
+    int num;
+    scanf("%d", &num);
+
+    if (num < 9)
+        Seek(F1, num);
+    else
+        printf("-1");
+}

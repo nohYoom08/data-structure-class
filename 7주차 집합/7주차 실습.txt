@@ -1,0 +1,291 @@
+1번
+#include <stdio.h>
+#include <stdlib.h>
+#pragma warning(disable:4996)
+typedef struct ListNode {
+	int num;
+	struct ListNode* link;
+}listNode;
+
+listNode* createNode();	//getNode()는 순수하게 노드만 얻을 것. 관련 데이터는 addNode에서 얻을 것
+int subset(listNode* A, listNode* B);
+listNode* addNode(listNode* head, int n);	//와 이거 빡셌다 -> 헤더구조체가 없는 경우에서 공백리스트인 경우
+				//단순히 포인터 인자로 받고 안에서 값 수정하는 거 안 됨. 이중포인터 쓰거나 포인터를 반환하고 main 첫 리스트를 넣어야 함
+int main()
+{
+	int N_A, N_B,temp,result;
+	listNode* A, * B;
+	A = B = NULL;
+
+	scanf("%d", &N_A);
+	if (N_A != 0) {
+		scanf("%d", &temp);
+		A = addNode(A, temp);
+		for (int i = 1; i < N_A; i++) {
+			scanf("%d", &temp);
+			addNode(A, temp);
+		}
+	}
+
+
+	scanf("%d", &N_B);
+
+	if (N_B != 0) {
+		scanf("%d", &temp);
+		B = addNode(B, temp);
+		for (int i = 1; i < N_B; i++) {
+			scanf("%d", &temp);
+			addNode(B, temp);
+		}
+	}
+
+
+	result = subset(A, B);
+	printf("%d", result);
+	return 0;
+}
+
+
+
+listNode* createNode() {
+	listNode* new;
+	new = (listNode*)malloc(sizeof(listNode));
+	if (new == NULL) {
+		printf("Not enough memory!\n");
+	}
+	new->link = NULL;
+
+	return new;
+}
+listNode* addNode(listNode* head, int n) {
+	listNode* tmp, * new = createNode();
+	new->num = n;
+
+	tmp = head;
+	if (head == NULL) {	//head = new로 노드 삽입 안 됨. head 노드가 따로 없는 경우이기도 하고 head->link가 l-value인 경우면 모를까
+				//쌩 head를 l-value로 두고 수정해봤자 main의 A의 주소값이 변하지 않음(헷갈리는 기본)
+		return new;
+	}
+	while (tmp->link != NULL)
+		tmp = tmp->link;
+
+	tmp->link = new;
+}
+int subset(listNode* A, listNode* B) {
+
+	listNode* tmp_A, *tmp_B;
+	tmp_A = A;
+	tmp_B = B;
+	int f,min;
+	f = 0;
+
+	if (tmp_A == NULL) {
+		return 0;
+	}
+
+	tmp_A = A;
+
+	while (tmp_B != NULL) {
+
+
+		if (tmp_A->num == tmp_B->num) {
+			tmp_A = tmp_A->link;
+			tmp_B = tmp_B->link;
+
+			if (tmp_A == NULL) {
+
+				f = 1;
+				break;
+			}
+		}
+
+		else 
+			tmp_B = tmp_B->link;
+		
+	}
+
+	if (f == 1)
+		return 0;
+	else {
+		min = tmp_A->num;
+		while (tmp_A != NULL) {
+			if (min > tmp_A->num)
+				min = tmp_A->num;
+			tmp_A = tmp_A->link;
+		}
+		return min;
+	}
+}
+//list!=NULL 방식은 길이체크할 때ㅇㅇ
+3
+4 6 13
+6
+1 3 4 6 8 13
+
+
+3
+7 10 53
+4
+7 10 15 45
+
+
+
+2번	//알고리즘 다 좋았는데 연결리스트 노드 추가하는거랑 생성하는 거 헤더노드가 있을 때 없을 때 각각 잘 생각해봐야할거같다.
+	//특정위치 추가 or 단순히 계속 항 추가 && 헤더노드가 있을 때 or 없을 때 => 내일 빡공
+#include <stdio.h>
+#include <stdlib.h>
+#pragma warning(disable:4996)
+typedef struct ListNode {
+	int num;
+	struct ListNode* link;
+}listNode;
+
+listNode* createNode();	//getNode()는 순수하게 노드만 얻을 것. 관련 데이터는 addNode에서 얻을 것
+listNode* Union(listNode* A, listNode* B);
+listNode* intersect(listNode* A, listNode* B);
+listNode* appendTerm(listNode* k, int c);
+//단순히 포인터 인자로 받고 안에서 값 수정하는 거 안 됨. 이중포인터 쓰거나 포인터를 반환하고 main 첫 리스트를 넣어야 함
+int main()
+{
+	int N_A, N_B, temp;
+	listNode* A, * B, * tmpA, * tmpB, * result,*tmp;
+	A = B = tmpA = tmpB = tmp=NULL;
+
+	A = createNode();
+	tmpA = A;
+	scanf("%d", &N_A);
+	if (N_A != 0) {
+		for (int i = 0; i < N_A; i++) {
+			scanf("%d", &temp);
+			tmpA = appendTerm(tmpA, temp);
+		}
+	}
+
+	B = createNode();
+	tmpB = B;
+	scanf("%d", &N_B);
+	if (N_B != 0) {
+		for (int i = 0; i < N_B; i++) {
+			scanf("%d", &temp);
+			tmpB = appendTerm(tmpB, temp);
+		}
+	}
+
+
+	result = Union(A, B);
+	tmp = result->link;
+	if (tmp == NULL) 
+		printf("0");
+	else {
+		while (tmp != NULL) {
+			printf(" %d", tmp->num);
+			tmp = tmp->link;
+		}
+	}
+	printf("\n");
+
+
+
+	result = intersect(A, B);
+	tmp = result->link;
+	if (tmp == NULL)
+		printf("0");
+	else {
+		tmp = result->link;
+		while (tmp != NULL) {
+			printf(" %d", tmp->num);
+			tmp = tmp->link;
+		}
+	}
+
+	return 0;
+}
+
+
+
+listNode* createNode() {
+	listNode* new;
+	new = (listNode*)malloc(sizeof(listNode));
+	if (new == NULL) {
+		printf("Not enough memory!\n");
+	}
+	new->link = NULL;
+
+	return new;
+}
+listNode* appendTerm(listNode* k, int c) {
+	listNode* t = createNode();
+	t->num = c;
+	t->link = NULL;
+	if (k == NULL)
+		return t;
+	
+	k->link = t;
+	k = t;
+
+	return k;
+}
+listNode* Union(listNode* A, listNode* B) {
+	listNode* tmpA, * tmpB, * tmpC, * C;
+	tmpA = A->link;
+	tmpB = B->link;
+
+	C = createNode();
+	tmpC = C;
+
+	while (tmpA != NULL && tmpB != NULL) {
+		if (tmpA->num > tmpB->num) {
+			tmpC = appendTerm(tmpC, tmpB->num);
+			tmpB = tmpB->link;
+		}
+		else if (tmpA->num < tmpB->num) {
+			tmpC = appendTerm(tmpC, tmpA->num);
+			tmpA = tmpA->link;
+		}
+		else {
+			tmpC = appendTerm(tmpC, tmpA->num);
+			tmpA = tmpA->link;
+			tmpB = tmpB->link;
+		}
+	}
+
+	while (tmpB != NULL) {
+		tmpC = appendTerm(tmpC, tmpB->num);
+		tmpB = tmpB->link;
+	}
+
+	while (tmpA != NULL) {
+		tmpC = appendTerm(tmpC, tmpA->num);
+		tmpA = tmpA->link;
+	}
+
+	return C;
+}
+listNode* intersect(listNode* A, listNode* B) {
+	listNode* tmpA, * tmpB, * tmpC, * C;
+	tmpA = A->link;
+	tmpB = B->link;
+
+	C = createNode();
+	tmpC = C;
+
+	while (tmpA != NULL && tmpB != NULL) {
+		if (tmpA->num > tmpB->num) 
+			tmpB = tmpB->link;
+		
+		else if (tmpA->num < tmpB->num) {
+			tmpA = tmpA->link;
+		}
+		else {
+			tmpC = appendTerm(tmpC, tmpA->num);
+			tmpA = tmpA->link;
+			tmpB = tmpB->link;
+		}
+	}
+
+	return C;
+}
+6
+3 7 45 88 99 101
+4
+7 10 15 45

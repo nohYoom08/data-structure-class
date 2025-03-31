@@ -1,0 +1,468 @@
+후위변환 구원자 : https://woongsios.tistory.com/288
+1번
+#pragma warning(disable:4996)
+
+#include  <stdio.h>
+#include  <string.h>
+#include  <stdlib.h>
+
+
+typedef struct ListNode {
+	char data;
+	struct ListNode* link;
+}listNode;
+
+typedef struct HeadNode {
+	listNode* top;
+}headNode;
+
+void push(headNode* head, char ch) {
+	listNode* node = (listNode*)malloc(sizeof(listNode));
+	node->data = ch;
+	node->link = head->top;
+	head->top = node;
+}
+
+char getTop(headNode* head) {
+	listNode* tmp = head->top;
+	return tmp->data;
+}
+char pop(headNode* head) {
+	if (head->top == NULL) {
+		printf("STACK UNDERFLOW!");
+		return;
+	}
+	listNode* tmp = head->top;
+	char tmp_c;
+	tmp_c = tmp->data;
+	head->top = tmp->link;
+	free(tmp);
+	return tmp_c;
+}
+int rank(char ch) {
+	if (ch == '(')
+		return 7;
+	else if (ch == '!' || ch == 'p' || ch == 'm')
+		return 6;
+	else if (ch == '*' || ch == '/')
+		return 5;
+	else if (ch == '+' || ch == '-')
+		return 4;
+	else if (ch == '>' || ch == '<')
+		return 3;
+	else if (ch == '&')
+		return 2;
+	else if (ch == '|')
+		return 1;
+	else if (ch == ')')
+		return 0;
+}
+
+
+void Convert(char str[], headNode* stack) {
+	int len = strlen(str);
+	int Ra, Rb;
+	char ch;
+	for (int i = 0; i < len; i++) {
+		if ('A' <= str[i] && str[i] <= 'Z') {
+			printf("%c", str[i]);
+		}
+		else {
+			if ((str[i] == '+' || str[i] == '-') && !('A' <= str[i - 1] && str[i - 1] <= 'Z')) {
+				if (str[i] == '+')
+					str[i] = 'p';
+				else
+					str[i] = 'm';
+			}
+
+			if (stack->top == NULL) {
+				push(stack, str[i]);
+				if (str[i] == '&' || str[i] == '|')
+					i++;
+			}
+			
+			else {
+				ch = getTop(stack);
+				Ra = rank(ch);
+				Rb = rank(str[i]);
+
+				if (str[i] == ')') {
+					while (ch != '(' && stack->top!=NULL) {
+						if (ch == '&' || ch == '|')
+							printf("%c%c", ch, ch);
+						else if (ch == 'p')
+							printf("%c", '+');
+						else if (ch == 'm')
+							printf("%c", '-');
+						else
+							printf("%c", ch);
+
+						pop(stack);
+
+						if (stack->top != NULL) {
+							ch = getTop(stack);
+							Ra = rank(ch);
+						}
+					}
+				}
+				else {
+					while (Ra >= Rb) {
+						printf("Ra = %d, Rb = %d\n", Ra, Rb);
+						if (ch == '&' || ch == '|')
+							printf("%c%c", ch, ch);
+						else if (ch == 'p')
+							printf("%c", '+');
+						else if (ch == '-')
+							printf("%c", '-');
+						else
+							printf("%c", ch);
+
+						pop(stack);
+
+						if (stack->top != NULL) {
+							ch = getTop(stack);
+							Ra = rank(ch);
+						}
+					}
+					push(stack, str[i]);
+
+					if (str[i] == '&' || str[i] == '|')
+						i++;
+				}
+				
+			}
+
+		}
+		
+	}
+	while (stack->top != NULL) {
+		ch = pop(stack);
+		if (ch == '&' || ch == '|')
+			printf("%c%c", ch, ch);
+		else if (ch == 'p')
+			printf("%c", '+');
+		else if (ch == 'm')
+			printf("%c", '-');
+		else
+			printf("%c", ch);
+	}
+	printf("\n");
+}
+
+int main() {
+	int N;
+	char str[101];
+	headNode* stack;
+	stack = (headNode*)malloc(sizeof(headNode));
+	if (stack == NULL) {
+		printf("not enough memory!\n");
+		return -1;
+	}
+	stack->top = NULL;	//선언과 동시에 초기화(기본)
+
+	scanf("%d", &N);
+	getchar();
+	for (int i = 0; i < N; i++) {
+		scanf("%s", str);
+		getchar();
+		Convert(str, stack);
+	}
+	free(stack);
+}
+
+예시:
+예시 1:
+
+입력: A+B*C
+출력: ABC*+
+예시 2:
+
+입력: (A+B)*C-D/E
+출력: AB+C*DE/-
+예시 3:
+
+입력: A&&(B||C)&&D
+출력: ABC||&&D&&
+예시 4:
+
+입력: A*(B+C)+D*E
+출력: ABC+DE+
+예시 5:
+
+입력: A+B*C-D
+출력: ABC*D-+
+
+1번 시발 드디어
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct ListNode {	//리스트를 활용한 스택(잘 확인)
+	char data;
+	struct ListNode* link;
+} listNode;
+
+typedef struct HeadNode {
+	listNode* top;
+} headNode;
+
+void push(headNode* head, char ch) {
+	listNode* node = (listNode*)malloc(sizeof(listNode));
+	node->data = ch;
+	node->link = head->top;
+	head->top = node;
+}
+
+char getTop(headNode* head) {
+	listNode* tmp = head->top;
+	return tmp->data;
+}
+
+char pop(headNode* head) {
+	if (head->top == NULL) {
+		printf("STACK UNDERFLOW!");
+		return '\0';
+	}
+	listNode* tmp = head->top;
+	char tmp_c = tmp->data;
+	head->top = tmp->link;
+	free(tmp);
+	return tmp_c;
+}
+
+int rank(char ch) {
+	if (ch == '(')
+		return 7;
+	else if (ch == '!' || ch == 'p' || ch == 'm')
+		return 6;
+	else if (ch == '*' || ch == '/')
+		return 5;
+	else if (ch == '+' || ch == '-')
+		return 4;
+	else if (ch == '>' || ch == '<')
+		return 3;
+	else if (ch == '&')
+		return 2;
+	else if (ch == '|')
+		return 1;
+}
+
+void P(headNode* stack) {	//Stack 내부 확인하는 함수 만들어봐도 좋음(너무 답 안 나오면)
+	listNode* tmp;
+	tmp = stack->top;
+	printf("\n stack : ");
+	while (tmp != NULL) {
+		printf(" %c", tmp->data);
+		tmp = tmp->link;
+	}
+	printf("\n");
+}
+
+void Convert(char str[], headNode* stack) {
+	int len = strlen(str);
+	int Ra, Rb;
+	char ch;
+	for (int i = 0; i < len; i++) {
+		if ('A' <= str[i] && str[i] <= 'Z') {
+			printf("%c", str[i]);
+		}
+		else {
+			if ((str[i] == '+' || str[i] == '-')	//단항연산자 식별
+				&& !('A' <= str[i - 1] && str[i - 1] <= 'Z')	//바로 앞이 글자가 아닌 경우
+				&& !(str[i-1]==')')) {	//단, (A+B)-C 이런 경우는 단항연산자가 아니므로(&&!(E)) => E인 경우는 제외)
+				if (str[i] == '+')
+					str[i] = 'p';
+				else
+					str[i] = 'm';
+			}
+
+			if (stack->top == NULL) {	//stack에 아무것도 없는 경우
+				push(stack, str[i]);	//기본
+				if (str[i] == '&' || str[i] == '|')
+					i++;	//문자 두 개에 대한 예외처리
+			}
+			else {
+				Rb = rank(str[i]);
+
+				if (str[i] == ')') {
+					while (stack->top != NULL) {		
+					//예외가 많은 경우에는 그냥 무한루프 때린다음 break 걸기(아니면 위 처럼 정말 간단한 전체조건 달던가). 
+					//조건문 하나로 통일하기 힘듬
+						ch = pop(stack);
+						if (ch == '(')	//여는 괄호는 push만 (pop은 닫는괄호 만났을 때만)
+							break;
+
+						if (ch == '&' || ch == '|')
+							printf("%c%c", ch, ch);
+						else if (ch == 'p')
+							printf("%c", '+');
+						else if (ch == 'm')
+							printf("%c", '-');	// p,m(단항연산자)에 대한 예외처리
+						else if (ch == '(' || ch == ')');		//괄호에 대한 예외처리
+						else
+							printf("%c", ch);
+						
+					}
+
+				}
+				else {
+					while (stack->top != NULL) {
+						ch = getTop(stack);	
+					//get(peak)함수가 괜히 있는게 아님. 비교를 해야 한다면 무작정 pop부터 하는 게 아니라 get부터 한 다음 pop 여부 결정할 것
+						Ra = rank(ch);
+
+						if (Ra >= Rb && ch!='(') {	//어휴 예외처리 진짜
+							ch = pop(stack);
+
+							if (ch == '&' || ch == '|')
+								printf("%c%c", ch, ch);
+							else if (ch == 'p')
+								printf("%c", '+');
+							else if (ch == 'm')
+								printf("%c", '-');
+							else if (ch == '(' || ch == ')');
+							else
+								printf("%c", ch);
+						}
+						else
+							break;
+					}
+					push(stack, str[i]);
+
+					if (str[i] == '&' || str[i] == '|')		//두개문자 예외처리
+						i++;
+				}
+			}
+		}
+	}
+	while (stack->top != NULL) {
+		ch = pop(stack);
+		if (ch == '&' || ch == '|')
+			printf("%c%c", ch, ch);
+		else if (ch == 'p')
+			printf("%c", '+');
+		else if (ch == 'm')
+			printf("%c", '-');
+		else if (ch == '(' || ch == ')');
+		else
+			printf("%c", ch);
+	}
+	printf("\n");
+}
+
+int main() {
+	int N;
+	char str[101];
+	headNode* stack;
+	stack = (headNode*)malloc(sizeof(headNode));
+	if (stack == NULL) {
+		printf("not enough memory!\n");
+		return -1;
+	}
+	stack->top = NULL;  // 선언과 동시에 초기화(기본)
+
+	scanf("%d", &N);
+	getchar();
+	for (int i = 0; i < N; i++) {
+		scanf("%s", str);
+		getchar();
+		Convert(str, stack);
+	}
+	free(stack);
+	return 0;
+}
+
+
+
+2번 => 받는것만 문자열로 받고 스택처리는 정수로 하는 건 당연(기본) => 스택도 문자로 처리하는 등신짓 x
+#pragma warning(disable:4996)
+
+#include  <stdio.h>
+#include  <string.h>
+#include  <stdlib.h>
+
+#define STACK_SIZE 100
+
+typedef struct ListNode {
+	int data;
+	struct ListNode* link;
+}listNode;
+
+typedef struct HeadNode {
+	listNode* top;
+}headNode;
+
+void push(headNode* head, int num) {
+	listNode* node = (listNode*)malloc(sizeof(listNode));
+	node->data = num;
+	node->link = head->top;
+	head->top = node;
+}
+
+int pop(headNode* head) {
+	if (head->top == NULL) {
+		printf("STACK UNDERFLOW!");
+		return;
+	}
+	listNode* tmp = head->top;
+	int tmp_c;
+	tmp_c = tmp->data;
+	head->top = tmp->link;
+	free(tmp);
+	return tmp_c;
+}
+
+int main() {
+	int N, Ra, Rb,num;
+	char eq[101];
+	headNode* first;
+	first = (headNode*)malloc(sizeof(headNode));
+	if (first == NULL) {
+		printf("not enough memory!\n");
+		return -1;
+	}
+	first->top = NULL;
+
+	scanf("%d", &N);
+	getchar();
+
+	for (int i = 0; i < N; i++) {
+		scanf("%s", eq);
+		getchar();
+		for (int j = 0; j < strlen(eq); j++) {
+			if ('0' <= eq[j] && eq[j] <= '9') {
+				num = eq[j] - '0';	//문자의 정수화(기본)
+				push(first, num);
+			}
+			else {
+				if (eq[j] == '+') {
+					Ra = pop(first);
+					Rb = pop(first);
+					push(first, Ra + Rb);
+				}
+				if (eq[j] == '-') {
+					Ra = pop(first);
+					Rb = pop(first);
+
+					push(first, Rb - Ra);
+				}
+				if (eq[j] == '*') {
+					Ra = pop(first);
+					Rb = pop(first);
+
+					push(first, Ra * Rb);
+				}
+				if (eq[j] == '/') {
+					Ra = pop(first);
+					Rb = pop(first);
+
+					push(first, Rb / Ra);
+				}
+			}
+		}
+		printf("%d\n", pop(first));
+	}
+	
+}

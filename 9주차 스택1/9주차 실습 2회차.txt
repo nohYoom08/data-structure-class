@@ -1,0 +1,195 @@
+1번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int stack_size;
+int top = -1;
+
+void push(char stack[], char ch);
+char pop(char stack[]);
+char peek(char stack[]);
+void duplicate(char stack[]);
+void upRotate(char stack[], int n);
+void downRotate(char stack[], int n);
+void print(char stack[]);
+
+int main() {
+	int n,M;
+	char fx[6], stack[100],tmp;
+	scanf("%d%d", &stack_size,&M);
+	getchar();
+
+	for (int i = 0; i < M; i++) {
+		scanf("%s", fx);	//공백 없으면 scanf %s + getchar쓰기 (그게 제일 깔끔 scanf getchar쌍 쓰도록 + 뒤에 공백 써야하는 경우도 잡아줌)
+		getchar();
+		if (strcmp(fx, "PUSH") == 0) {
+			scanf("%c", &tmp);
+			getchar();
+			push(stack, tmp);
+		}
+		else if (strcmp(fx, "POP") == 0) {
+			pop(stack);
+		}
+		else if (strcmp(fx, "PEEK") == 0) {
+			peek(stack);
+		}
+		else if (strcmp(fx, "DUP") == 0) {
+			duplicate(stack);
+		}
+		else if (strcmp(fx, "UpR") == 0) {
+			scanf("%d", &n);
+			getchar();
+			upRotate(stack, n);
+		}
+		else if (strcmp(fx, "DownR") == 0) {
+			scanf("%d", &n);
+			getchar();
+			downRotate(stack, n);
+		}
+		else if (strcmp(fx, "PRINT") == 0) {
+			print(stack);
+		}
+	}
+	
+	return 0;
+}
+
+void push(char stack[], char ch) {
+	if (top >= stack_size-1)	//기왕이면 부등호 써서ㅇㅇ 
+		printf("Stack FULL\n");
+	else
+		stack[++top] = ch;		//한 칸 올리고 나서 채우는거다. 그래서 위의 조건문이 성립 헷갈리지 말 것
+}
+char pop(char stack[]) {
+	if (top == -1) {
+		printf("Stack Empty\n");
+		return;
+	}
+
+	return stack[top--];
+}
+char peek(char stack[]) {
+	if (top == -1) {
+		printf("Stack Empty\n");	//웬만하면 Peek은 그냥 출력만 하는 걸로. 반환받는건 get이 있다. peek으로 반환하면 없는 경우 이상한 문자 띄울 수도 있음
+		return;
+	}
+
+	else printf("%c\n", stack[top]);
+}
+void duplicate(char stack[]) {
+	char tmp = pop(stack);
+	for (int i = 0; i < 2; i++) {
+		if (top >= stack_size - 1) {		//딱히 상관없을 수도 있었겠지만 기왕이면 이렇게. 어찌보면 두번 스택풀 메세지 띄울수도 있으니
+			printf("Stack Full\n");
+			return;
+		}
+		push(stack, tmp);
+	}
+}
+void upRotate(char stack[], int n) {
+	if (n > top + 1)	//문제 조건 잘 읽고..
+		return;
+	char tmp = stack[top];
+	for (int i = 0; i < n - 1; i++) 
+		stack[top - i] = stack[top - i - 1];
+	stack[top - n + 1] = tmp;
+}
+void downRotate(char stack[], int n) {
+	if (n > top + 1)
+		return;
+	char tmp = stack[top-n+1];
+	for (int i = 0; i < n - 1; i++)
+		stack[top - n + 1 + i] = stack[top - n + 2 + i];	//이건 걍 1회차 참고해라. 무조건 i = i+1 또는 i = i-1 배운 알고리즘 형식을 유지하면서 범위 조절
+	stack[top] = tmp;
+}
+void print(char stack[]) {
+	for (int i = 0; i <= top; i++)
+		printf("%c",stack[top-i]);
+	printf("\n");
+}
+
+
+
+
+2번	//어떤 것 여부를 물어볼 때는 플래그 적극 활용
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define STACK_SIZE 1001
+
+
+int top = -1;
+void push(char stack[], char ch);
+char pop(char stack[]);
+
+int main() {
+	char F[1001], stack[STACK_SIZE];
+	int cnt=0, len, f = 0;
+	char tmp;
+	
+	gets(F);
+	len = strlen(F);
+	for (int i = 0; i < len; i++) {
+		if (F[i] == '(' || F[i] == '{' || F[i] == '[') {
+			push(stack, F[i]);
+			cnt++;
+		}
+		else if (F[i] == ')' || F[i] == '}' || F[i] == ']') {
+			if (top > -1) {
+				tmp = pop(stack);
+				if (F[i] == ')') {	
+				//쌉소름 중괄호 없을 때 if문까지만 받는게 아니라 그 쌍까지는 받음. 즉 if-elseif까지는 받는거였음
+				//그래서 밑밑 조건까지 같이 종속되버리는 거였음 => 중괄호 안 쓰기 너무 남발ㄴ, 혹여나 조건문 많을 때 문제 생기면 여기에 집중
+					if (tmp != '(')
+						f = 1;
+				}
+
+				else if (F[i] == '}') {
+					if (tmp != '{')
+						f = 1;
+				}
+				
+
+				else if (F[i] == ']') {
+					if (tmp != '[')
+						f = 1;
+				}
+			}
+			else
+				f = 1;
+
+			
+			cnt++;
+		}
+	}
+	if (top > -1)
+		f = 1;
+
+	if (f == 0)
+		printf("OK_%d\n", cnt);
+	else
+		printf("Wrong_%d\n", cnt);
+
+	
+	return 0;
+}
+
+void push(char stack[], char ch) {
+	if (top == STACK_SIZE-1) 
+		printf("Stack FULL\n");
+	else
+		stack[++top] = ch;
+}
+char pop(char stack[]) {
+	if (top == -1) {
+		printf("Stack Empty\n");
+		return;
+	}
+
+	return stack[top--];
+}

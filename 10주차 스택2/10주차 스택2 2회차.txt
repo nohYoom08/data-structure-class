@@ -1,0 +1,301 @@
+1번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+typedef struct listNode {
+	char ch;
+	struct listNode* link;
+}listNode;
+typedef struct Stack {
+	listNode* top;
+}Stack;
+
+Stack* getStack() {		//어떤 형태든간 이렇게 함수 만들어보기(그래야 main에서 NULL 초기화 깜빡하는 실수 안 할듯), +헤드노드 형태로
+	Stack* new = (Stack*)malloc(sizeof(Stack));
+	new->top = NULL;
+	return new;
+}
+listNode* getNode() {
+	listNode* new = (listNode*)malloc(sizeof(listNode));
+	new->link = NULL;
+	return new;
+}
+
+void push(Stack* stack, char ch) {
+	//push에서 공백일 때 조건문 두려는 건 잘했는데 스택에선 어차피 항상 출발점에서만 삽입을 하니까 없어도 됨
+	listNode* new = getNode();
+	new->ch = ch;
+	new->link = stack->top;
+	stack->top = new;
+}
+
+char pop(Stack* stack) {
+	if (stack->top == NULL)
+		return '\0';
+	listNode* tmp = stack->top;		//기본적으로 매개포인터는 선언과 함께 초기화해볼 것
+	char item = tmp->ch;
+	stack->top = tmp->link;
+	free(tmp);
+	
+	return item;
+}
+
+char peak(Stack* stack) {
+	if (stack->top == NULL)
+		return;
+	return stack->top->ch;
+}
+
+int rank(char ch) {
+	if (ch == '(')
+		return 7;
+	else if (ch == 'p' || ch == 'm' || ch=='!')
+		return 6;
+	else if (ch == '*' || ch == '/')
+		return 5;
+	else if (ch == '+' || ch == '-')
+		return 4;
+	else if (ch == '>' || ch == '<')
+		return 3;
+	else if (ch == '&')
+		return 2;
+	else if (ch == '|')
+		return 1;
+}
+void Print(Stack* stack) {
+	listNode* tmp;
+	tmp = stack->top;
+	printf("\nstack : ");
+	if(tmp!=NULL){
+		printf(" %c", tmp->ch);
+		tmp = tmp->link;
+	}
+	printf(" over\n");
+}
+void Convert(Stack* stack, char str[]) {
+	int len = strlen(str); 
+	char tmp_c;
+	int R1, R2;
+	for (int i = 0; i < len; i++) {
+		if ('A' <= str[i] && str[i] <= 'Z')
+			printf("%c", str[i]);
+		else {
+			if ((str[i] == '+' || str[i] == '-')&&
+				!('A' <= str[i - 1] && str[i - 1] <= 'Z') &&
+				!(str[i - 1] == ')')) {
+				if (str[i] == '+')
+					str[i] = 'p';
+				else
+					str[i] = 'm';
+			}
+
+			if (stack->top == NULL){	//기존에도 있던 조건문. 처음 스택에 &들어가는 경우도 생각해야지
+				push(stack, str[i]);
+				if (str[i] == '&' || str[i] == '|')
+					i++;
+				}
+				
+			else{
+				R1 = rank(str[i]);
+				if (str[i] == ')') {
+					while (stack->top != NULL) {
+						tmp_c = pop(stack);
+						if (tmp_c == '(')
+							break;
+
+						if (tmp_c == 'p')
+							printf("+");
+						else if (tmp_c == 'm')
+							printf("-");
+						else if (tmp_c == '&' || tmp_c == '|')
+							printf("%c%c", tmp_c, tmp_c);
+						else if (tmp_c == ')');	//오른쪽 괄호도 스택 들어간다...그냥 모든 경우 다 쳐넣어라
+						else
+							printf("%c", tmp_c);
+					}
+				}
+				else {
+					while (stack->top != NULL) {
+						tmp_c = peak(stack);
+						R2 = rank(tmp_c);
+						if (R2 >= R1 && tmp_c != '(') {
+							pop(stack);
+							if (tmp_c == 'p')
+								printf("+");
+							else if (tmp_c == 'm')
+								printf("-");
+							else if (tmp_c == '&' || tmp_c == '|')
+								printf("%c%c", tmp_c, tmp_c);
+							else if (tmp_c == ')');
+							else
+								printf("%c", tmp_c);
+						}
+						else
+							break;
+					}
+				}
+				push(stack, str[i]);
+				if (str[i] == '&' || str[i] == '|')
+					i++;
+			}
+		}
+	}
+	while (stack->top != NULL) {
+		tmp_c = pop(stack);
+		if (tmp_c == 'p')
+			printf("+");
+		else if (tmp_c == 'm')
+			printf("-");
+		else if (tmp_c == '&' || tmp_c == '|')
+			printf("%c%c", tmp_c, tmp_c);
+		else if (tmp_c=='(' || tmp_c == ')');
+		else
+			printf("%c", tmp_c);
+	}
+}
+int main() {
+	char str[101];
+	int N;
+	Stack* stack = getStack();
+	scanf("%d", &N);
+	getchar();
+	
+	for (int i = 0; i < N; i++) {
+		scanf("%s", str);
+		getchar();
+		Convert(stack, str);
+		printf("\n");
+	}
+	free(stack);
+	return 0;
+}
+
+
+
+
+2번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+typedef struct listNode {
+	char ch;
+	struct listNode* link;
+}listNode;
+typedef struct Stack {
+	listNode* top;
+}Stack;
+
+Stack* getStack() {
+	Stack* new = (Stack*)malloc(sizeof(Stack));
+	new->top = NULL;
+	return new;
+}
+listNode* getNode() {
+	listNode* new = (listNode*)malloc(sizeof(listNode));
+	new->link = NULL;
+	return new;
+}
+
+void push(Stack* stack, char ch) {
+	listNode* new = getNode();
+	new->ch = ch;
+	new->link = stack->top;
+	stack->top = new;
+}
+
+char pop(Stack* stack) {
+	if (stack->top == NULL)
+		return '\0';
+	listNode* tmp = stack->top;
+	char item = tmp->ch;
+	stack->top = tmp->link;
+	free(tmp);
+	
+	return item;
+}
+
+void Print(Stack* stack) {
+	listNode* tmp;
+	tmp = stack->top;
+	printf("\nstack : ");
+	if(tmp!=NULL){
+		printf(" %c", tmp->ch);
+		tmp = tmp->link;
+	}
+	printf(" over\n");
+}
+int Calculate(Stack* stack, char str[]) {
+	int len = strlen(str);
+	int result, num;
+	int num1, num2;
+	for (int i = 0; i < len; i++) {
+		if ('0' <= str[i] && str[i] <= '9') {
+			num = str[i] - '0';
+			push(stack, num);
+		}
+		else {
+			switch (str[i]) {
+			case '+':
+				num1 = pop(stack);
+				num2 = pop(stack);
+				result = num1 + num2;
+				push(stack, result);
+				break;
+
+			case '-':
+				num1 = pop(stack);
+				num2 = pop(stack);
+				result = num2 - num1;
+					//빼기 나누기에서 주의 : 밑에 있던 놈에서 위에 있는 놈 빼는 거 또는 나누기
+				push(stack, result);
+				break;
+
+			case '*':
+				num1 = pop(stack);
+				num2 = pop(stack);
+				result = num1 * num2;
+				push(stack, result);
+				break;
+
+			case '/':
+				num1 = pop(stack);
+				num2 = pop(stack);
+				result = num2 / num1;
+				push(stack, result);
+				break;
+			}
+		}
+	}
+	return pop(stack);
+}
+int main() {
+	char str[101];
+	int N,result;
+	Stack* stack = getStack();
+	scanf("%d", &N);
+	getchar();
+	
+	for (int i = 0; i < N; i++) {
+		scanf("%s", str);
+		getchar();
+		result = Calculate(stack, str);
+		printf("%d\n",result);
+	}
+	free(stack);
+	return 0;
+}
+
+
+
+
+
+4
+53*2+63+2*+
+234*+
+72/3-42*+21*-
+923*1+2*+
+

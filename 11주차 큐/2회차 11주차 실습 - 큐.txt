@@ -1,0 +1,257 @@
+1번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+
+typedef struct {
+	int* queue;	//변수는 웬만하면 소문자 길게 + 큐에서 구조체 + 실제 큐 이런 형식 참고
+	int front, rear;
+	int size;	//배열큐면 배열크기 꼭 받고
+}Queue;	//구조체는 대문자 하나쯤 포함해서 카멜형으로 만들기
+
+Queue* CreateQueue(int size);	//구조체 초기화 함수 하나 만들어보기(구조체 생성함수)
+int isEmpty(Queue* Q);
+int isFull(Queue* Q);
+int enQueue(Queue* Q, int data);
+int deQueue(Queue* Q);
+void print(Queue* Q);
+int check = 0;
+
+int main() {
+	int q, n, tmp;
+	char fx;
+	Queue* Q;
+
+	scanf("%d%d", &q, &n);
+	getchar();
+	Q = CreateQueue(q);
+
+	for (int i = 0; i < Q->size; i++)
+		Q->queue[i] = 0;
+
+	for (int i = 0; i < n; i++) {
+		scanf("%c", &fx);
+		getchar();
+
+		switch (fx) {
+		case 'I':
+			scanf("%d", &tmp);
+			getchar();
+			enQueue(Q, tmp);
+			break;
+		case 'D':
+			deQueue(Q);
+			break;
+		case 'P':
+			print(Q);
+			break;
+		}
+
+		if (check == 1)
+			return;
+	}
+
+	free(Q->queue);
+	free(Q);
+
+	return 0;
+}
+
+
+Queue* CreateQueue(int size) {	//큐 객체 선언 => size 받고 나머지 값들 초기화(기본. 선언과 동시에 초기화)
+	Queue* Q;
+	Q = (Queue*)malloc(sizeof(Queue));	//구조체 자체 동적할당 + 실제 큐 동적할당 모두 생각(한 번으로 끝 아님)
+	Q->front = 0;
+	Q->rear = 0;
+	Q->size = size;
+	Q->queue = (int*)malloc(sizeof(int) * size);
+	for (int i = 0; i < Q->size; i++)
+		Q->queue[i] = 0;	//'초기화'
+	return Q;
+}
+int isEmpty(Queue* Q) {
+	if (Q->front == Q->rear)
+		return 1;
+	else
+		return 0;
+}
+int isFull(Queue* Q) {
+	if ((Q->rear + 1) % Q->size == Q->front)
+		return 1;
+	else
+		return 0;
+}
+int enQueue(Queue* Q, int data) {
+	if (isFull(Q) == 1) {		//삽입할 때는 공백여부가 아니라 포화여부를 따져야지 헷갈ㄴ
+		printf("overflow");
+		print(Q);
+		check = 1;
+		return;
+	}
+	else {
+		Q->rear = (Q->rear + 1) % Q->size;
+		Q->queue[Q->rear] = data;
+	}
+}
+int deQueue(Queue* Q) {
+	if (isEmpty(Q) == 1) {	//문제 제대로 확인. 얘는 배열 출력하는 거 아니에요^^
+		printf("underflow");
+		check = 1;
+		return;
+	}
+	else {
+		Q->front = (Q->front + 1) % Q->size;		//큐는 스택과 달리 이동 후 삭제
+		Q->queue[Q->front] = 0;
+	}
+}
+void print(Queue* Q) {
+	for (int i = 0; i < Q->size; i++)
+		printf(" %d", Q->queue[i]);
+	printf("\n");
+}
+
+
+
+
+2번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int check = 0;
+typedef struct QueueNode {
+	int data;
+	struct QueueNode* llink;
+	struct QueueNode* rlink;
+}queueNode;
+
+typedef struct {
+	queueNode* front, * rear;
+}deQue;
+
+queueNode* getNode() {
+	queueNode* new;
+	new = (queueNode*)malloc(sizeof(queueNode));
+	new->llink = NULL;
+	new->rlink = NULL;
+
+	return new;
+}
+
+deQue* createDeque() {
+	deQue* new;
+	new = (deQue*)malloc(sizeof(deQue));
+	new->front = NULL;
+	new->rear = NULL;
+
+	return new;
+}
+void add_front(deQue* deque, int data) {
+	queueNode* new = getNode();
+	new->data = data;
+	if (deque->front == NULL) {		//공백큐인 경우 둘다 초기화
+		deque->front = new;
+		deque->rear = new;
+		return;
+	}
+	else {				//아니라면 그냥 추가
+		deque->front->llink = new;
+		new->rlink = deque->front;
+		deque->front = new;
+	}
+}
+void add_rear(deQue* deque, int data) {
+	queueNode* new = getNode();
+	new->data = data;
+	if (deque->rear == NULL) {
+		deque->front= new;
+		deque->rear = new;
+		return;
+	}
+	else {
+		deque->rear->rlink = new;
+		new->llink = deque->rear;
+		deque->rear = new;
+	}
+}
+void delete_front(deQue* deque) {
+	if (deque->front == NULL) {		//공백큐인 경우ㅇㅇ
+		printf("underflow\n");
+		check = 1;
+		return;
+	}
+	queueNode* old;
+	old = deque->front;
+	deque->front = deque->front->rlink;
+	free(old);
+	if (deque->front == NULL)		//공백큐인 경우 - 둘다 초기화
+		deque->rear = NULL;
+	else				//아닌 경우 -> 도착한 자리의 rlink 또는 llink NULL문자(기본!!)
+		deque->front->llink = NULL;
+
+}
+void delete_rear(deQue* deque) {
+	if (deque->rear == NULL) {
+		printf("underflow\n");
+		check = 1;
+		return;
+	}
+	queueNode* old;
+	old = deque->rear;
+	deque->rear = deque->rear->llink;
+	free(old);
+	if (deque->rear == NULL)
+		deque->front = NULL;
+	else
+		deque->rear->rlink = NULL;
+}
+void print(deQue* deque) {	//프린트함수 쓰고 꼭 밑에 들여쓰기 하기
+	queueNode* tmp;
+	tmp = deque->front;
+	while (tmp != NULL) {
+		printf(" %d", tmp->data);	//printf에 &를 왜 넣니..
+		tmp = tmp->rlink;
+	}
+	printf("\n");
+}
+int main() {
+	int N,tmp;
+	char fx[3];
+	deQue* deque = createDeque();
+	scanf("%d", &N);
+	getchar();
+
+	for (int i = 0; i < N; i++) {
+		scanf("%s", fx);
+		getchar();
+		if (strcmp(fx, "AF") == 0) {
+			scanf("%d", &tmp);
+			getchar();
+			add_front(deque, tmp);
+		}
+		else if (strcmp(fx, "AR") == 0) {
+			scanf("%d", &tmp);
+			getchar();
+			add_rear(deque, tmp);
+		}
+		else if (strcmp(fx, "DF") == 0) {
+			delete_front(deque);
+		}
+		else if (strcmp(fx, "DR") == 0) {
+			delete_rear(deque);
+		}
+		else if (strcmp(fx, "P") == 0) {
+			print(deque);
+		}
+
+		if (check == 1)
+			return 0;
+	}
+	return 0;
+}
+

@@ -1,0 +1,183 @@
+1번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int SUM(int n);
+int main() {
+	int N;
+	scanf("%d", &N);
+	N = SUM(N);
+	printf("%d", N);
+}
+int SUM(int n) {
+	if (n == 0)
+		return 0;		//return의 끝항처리 => 뭔가 깨달아간다
+	else
+		return n + SUM(n - 1);
+}
+
+
+
+2번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+void Seat(int n);
+int main() {
+	int N;
+	scanf("%d", &N);
+	Seat(N);
+}
+void Seat(int n) {
+	if(n==0)
+		return;	//걍 이게 답이었누
+			//끝항처리할 때 '언제 "루프"를 멈출까?' 잘 생각. 루프의 조건을 잘 생각해볼 것
+			//끝항처리 : 반복문처럼 if일 때 계속 재귀를 돌리는 경우 / if일 때 멈추고 실행하는 경우(if - else)	=> X
+			//걍 끝항처리는 함수시작부터 하는 거 추천. 이건 처음부터 둘다 된 케이스이긴 한데 만약 둘 중 하나를 택해야한다면 2번으로**(7번 참고)
+	Seat(n / 10);
+	printf("%d\n", n % 10);	//n항부
+
+}
+//어쩌면 자리수 추출은 그저 N항 재귀 나누는 거였을지도. 진짜는 그저 출력여부가 'N항부 실행'
+
+
+3번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int Seat(int n);
+int main() {
+	int N;
+	scanf("%d", &N);
+	Seat(N);
+}
+int Seat(int n) {
+	if(n==0)				//끝항은 무조건 처리할 요소가 없는 부분까지
+		return;
+	printf("%d\n", n % 10);		//실행-재귀
+					//재귀의 조건(끝항처리)
+	Seat(n / 10);	
+}
+
+
+4번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int MX(int* x, int n);
+int main() {
+	int X[20], N;
+	scanf("%d", &N);
+	for (int i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	printf("%d", MX(X, N));
+}
+
+int MX(int* x, int n) {
+	int max = 0;
+	if ((n-1) > 0) {		//개념 맞춰서 잘 했는데(끝항처리도 1번째로 처리하고)
+				//인자를 인자개수로 받을거면 인덱스를 잘 계산했어야지=>함수 안에서 인덱스 다룰 땐 n이 아닌 n-1로 쓰고
+		max = MX(x, n - 1);	//근데 여기서 다음루프 인자로 n-2넣는 실수 X => 인자가 의미하는 거 잘 생각. 인자는 개수라니까?
+		if (x[n - 1] > max)
+			return x[n - 1];
+		else
+			return max;
+	}
+	else
+		return x[0];
+}
+
+
+5번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+void Hanoi(char from, char by, char to, int num);
+int main() {
+	int N;
+	scanf("%d", &N);
+	Hanoi('A', 'B', 'C', N);
+}
+
+void Hanoi(char start, char to, char end, int num) {
+	if (num == 0)
+		return;
+	Hanoi(start, end, to, num - 1);	// 1차 재귀부 처리
+	printf("%c %c\n", start, end);	// N항부 처리 (맨 밑판 옮기기)
+	Hanoi(to, start, end, num - 1);	// 2차 재귀부 처리
+}
+//안에서 정확히 무슨 일이 일어날 진 계산이 안 되지만 이렇게 재귀함수의 구조만 잘 파악해보자고
+
+
+6번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int gcd(int a, int b);
+int main() {
+	int a, b;
+	scanf("%d %d", &a, &b);
+	printf("%d", gcd(a, b));
+}
+
+int gcd(int a, int b) {
+	if (b > 0)
+		gcd(b, a % b);	//그냥 특수한 문제. 둘 중 하나가 0이 되면이긴 한데 이런식이면 a<b여도 어차피 한턴만에 a랑 b위치 바껴서 똑같음
+	else
+		return a;		//주 실행종류 체크(printf가 아니라 리턴!)
+}
+
+
+
+
+
+
+7번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int Check(char* x, char ch, int i);
+int main() {
+	char X[100];
+	char ch;
+	int result;
+	scanf("%s", X);
+	getchar();
+
+	scanf("%c", &ch);
+
+	result = Check(X,ch,0);
+
+	printf("%d", result);
+}
+
+int Check(char* x, char ch, int i) {
+	if (x[i] == '\0')			//위에 잘못 생각했다 무조건 끝항처리부터
+		return 0;			//+문자열 처리면 처음부터 시작해도 된다 왜? => 끝에 널문자라는 끝항기준이 있으니까
+	
+	int cnt = Check(x, ch, i + 1);		//당연히 재귀부터(n항부 재귀부 나눠놓고 잘 생각해볼 것 헷갈리지 말고)
+					//주 실행종류 + n항부 재귀부 잘 나누고 + 순서는 main에서의 총합출력인데 첫항부터 띄워봤자 뭐할라고?
+	if (x[i] == ch) 
+		cnt++;
+	
+
+	return cnt;
+}
+//그리고 선언부랑 구현부 인자 맞추는거 조심하고. char x / char* x 안 맞았다가 터짐 (NULL 참조)
+
+
+
+//재귀함수 복습
+1. 끝항처리 (무조건 처리할 수 없는 부분까지)
+2. 재귀부(1~N-1) + 첫항부(N)
+3. N항부에서 뭐할지 상황파악(주 실행종류와 실행)부터 하고 => N항에서 재귀부터 할지 실행부터 할지 순서판단
+4. 나머지 스무스(혹시나 하노이마냥 추가 재귀 있을지 모르는 것도 판단)

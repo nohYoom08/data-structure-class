@@ -1,0 +1,195 @@
+1번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct Tree {
+	int data, id;
+	struct Tree* left, *right;
+}Tree;
+
+Tree* createTree(int data, int id, Tree* left, Tree* right) {
+	Tree* new = (Tree*)malloc(sizeof(Tree));
+	new->data = data;
+	new->id = id;
+	new->left = left;
+	new->right = right;
+
+	return new;
+}
+
+void print(Tree* tree) {
+	if (tree != NULL)
+		printf(" %d", tree->data);
+}
+
+void preOrder(Tree* tree) {
+	if (tree == NULL)
+		return;
+
+	print(tree);
+	preOrder(tree->left);
+	preOrder(tree->right);
+}
+void inOrder(Tree* tree) {
+	if (tree == NULL)
+		return;
+
+	inOrder(tree->left);
+	print(tree);
+	inOrder(tree->right);
+}
+void postOrder(Tree* tree) {
+	if (tree == NULL)
+		return;
+
+	postOrder(tree->left);
+	postOrder(tree->right);
+	print(tree);
+}
+
+void Seek(Tree* tree, int id, int check) {	//이중 탐색 => 무조건 찾는 함수 따로 만들어 놓고 둘을 합칠 것(찾는 함수 안에서 모든 걸 해결하려고 하지 말고)
+	if (tree == NULL)
+		return;
+	if (tree->id == id) {
+		switch (check) {
+		case 1:
+			preOrder(tree);
+			break;	//switch -> break문 항상 생각
+		case 2:
+			inOrder(tree);
+			break;
+		case 3:
+			postOrder(tree);
+			break;
+		default:
+			break;
+		}
+		return;
+	}
+	Seek(tree->left, id, check);
+	Seek(tree->right, id, check);
+}
+int main() {
+	Tree* F1, * F2, * F3, * F4, * F5, * F6, * F7, * F8;
+		
+	F8 = createTree(80, 8,NULL, NULL);
+	F7 = createTree(130, 7,NULL, NULL);
+	F6 = createTree(120, 6,F7, F8);
+	F5 = createTree(90, 5,NULL, NULL);
+	F4 = createTree(70, 4,NULL, NULL);
+	F3 = createTree(50, 3,NULL, F6);
+	F2 = createTree(30, 2,F4, F5);
+	F1 = createTree(20, 1,F2, F3);
+
+	Tree* root = F1;
+	int N,M;
+	scanf("%d%d", &N,&M);
+
+	if (M > 8)
+		printf("-1");
+	else
+		Seek(root, M, N);
+
+
+	
+	return 0;
+}
+
+
+
+
+2번	//이것도 나름 2중 탐색(찾고, 합을 또 거기서 찾는거니까)
+	//전역변수 활용
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int sum;
+typedef struct Tree {
+	int data, id;
+	struct Tree* left, *right;
+}Tree;
+
+Tree* createTree(int data, int id, Tree* left, Tree* right) {
+	Tree* new = (Tree*)malloc(sizeof(Tree));
+	new->data = data;
+	new->id = id;
+	new->left = left;
+	new->right = right;
+
+	return new;
+}
+
+void print(Tree* tree) {
+	if (tree != NULL)
+		printf(" %d", tree->data);
+}
+
+void preOrder(Tree* tree) {
+	if (tree == NULL)
+		return;
+
+	sum += tree->data;
+	preOrder(tree->left);
+	preOrder(tree->right);
+}
+void inOrder(Tree* tree) {
+	if (tree == NULL)
+		return;
+
+	inOrder(tree->left);
+	print(tree);
+	inOrder(tree->right);
+}
+void postOrder(Tree* tree) {
+	if (tree == NULL)
+		return;
+
+	postOrder(tree->left);
+	postOrder(tree->right);
+	print(tree);
+}
+
+void Seek(Tree* tree, int id) {
+	if (tree == NULL)
+		return;
+	if (tree->id == id) 
+		preOrder(tree);
+	
+	Seek(tree->left, id);
+	Seek(tree->right, id);
+}
+int main() {
+	Tree* F1, * F2, * F3, * F4, * F5, * F6, * F7, * F8;
+		
+	F8 = createTree(80, 8,NULL, NULL);
+	F7 = createTree(130, 7,NULL, NULL);
+	F6 = createTree(120, 6,F7, F8);
+	F5 = createTree(90, 5,NULL, NULL);
+	F4 = createTree(70, 4,NULL, NULL);
+	F3 = createTree(50, 3,NULL, F6);
+	F2 = createTree(30, 2,F4, F5);
+	F1 = createTree(20, 1,F2, F3);
+
+	Tree* root = F1;
+	int id;
+	scanf("%d", &id);
+
+	sum = 0;
+	if (id > 8)
+		printf("-1");
+	else {
+		Seek(root, id);
+		printf("%d", sum);
+	}
+
+
+	
+	return 0;
+}
+

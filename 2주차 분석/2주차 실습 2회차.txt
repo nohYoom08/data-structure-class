@@ -1,0 +1,226 @@
+1번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+int modulo(int a, int b);
+int main() {
+	int a, b, result;
+	scanf("%d %d", &a, &b);
+	result = modulo(a, b);
+	printf("%d", result);
+}
+int modulo(int a, int b) {
+	while (a >= b) 
+			a -= b;
+	return a;		// ?예외 없어도 걍 되는데
+}
+
+
+
+2번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+int mostOnes(int A[][100], int n);
+int main() {
+	int n,result;
+	int A[100][100];
+	scanf("%d", &n);
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			scanf("%d", &A[i][j]);
+
+	result = mostOnes(A, n);
+	printf("%d", result);
+}
+int mostOnes(int A[][100], int n) {	//이차원 배열 인자로 받는거 이젠 좀 외우기(이차원 항은 써놓는 것)
+	int i, j, next_j, max_i, max,cnt;
+
+	next_j = 0;
+	max_i = 0;
+	cnt = 0;
+	max = 0;
+	for (i = 0; i < n; i++) {
+		for (j = next_j; j < n; j++) {
+			if (A[i][j] == 0) {		
+				next_j = j;
+				if (max < cnt) {
+					max = cnt;
+					max_i = i;
+				}
+				break;
+			}
+			else if (A[i][j] == 1) {
+				if (j == n - 1)
+					return i;
+				else
+					cnt++;
+			}
+		}
+	}
+
+	return max_i;
+}
+//조건문이 많이 나오는 낯선 알고리즘 문제는 직접 손으로 조건 나눠보는 게 진리
+//시작 - 갈림길 - 행위 - 갈림길 => 첫 갈림길을 가장 큰 조건문으로 + First Last 확인(j=n-1)
+//예시 손으로 다 써보고
+
+
+
+
+3-1번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+int* prefixAverages1(int* X, int n);
+int* prefixAverages2(int* X, int n);
+int main() {
+	int N,i;
+	int* X,*A, * B;	//일단 빠르게 주소 세 개 받기
+	X = A = B = NULL;
+	scanf("%d", &N);
+	X = (int*)malloc(sizeof(int)*N);	//동적할당에서 N 안 곱하는 참사 위험
+	if (X == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+
+	for (i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	A = prefixAverages1(X, N);
+	B = prefixAverages2(X, N);
+
+	for (i = 0; i < N; i++)
+		printf("%d ", A[i]);
+	
+	printf("\n");
+
+	for (i = 0; i < N; i++)
+		printf("%d ", B[i]);
+
+	free(X);		//할당해제 잊지말고(감점당하기 싫으면)
+	free(A);
+	free(B);
+}
+
+int* prefixAverages1(int* X, int n) {
+	int i,j;
+	int* A;
+	double sum = 0;
+	A = (int*)malloc(sizeof(int) * n);
+	if (A == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+	for (i = 0; i < n; i++) {
+		for (j = 0; j <= i; j++)			//i행의 i열까지 더하는 이런 계산식에서 이중루프 최댓값 조심하기(특히 등호도 조심하고. j<i가 아니라 j<=i)
+			sum += X[j];
+		A[i] = (int)(sum / (i + 1) + 0.5);
+		sum = 0;		//sum 초기화 잊지말고
+	}
+
+	return A;
+}
+int* prefixAverages2(int* X, int n) {
+	int i, j;
+	int* A;
+	double sum = 0;
+	A = (int*)malloc(sizeof(int) * n);
+	if (A == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+	for (i = 0; i < n; i++) {
+		sum += X[i];
+		A[i] = (int)(sum / (i + 1) + 0.5);
+	}
+
+	return A;
+}
+
+
+//난수 설정과 프로그램 돌리는 시간 측정법 확인
+3-2번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <Windows.h>
+int* prefixAverages1(int* X, int n);
+int* prefixAverages2(int* X, int n);
+int main() {
+	int N,i;
+	int* X,*A, * B;
+	LARGE_INTEGER ticsPerSec;
+	LARGE_INTEGER start, end, diff;	//구조체 LARGE_INTEGER
+	X = A = B = NULL;
+	scanf("%d", &N);
+	X = (int*)malloc(sizeof(int)*N);	//동적할당에서 N 안 곱하는 참사 위험
+	if (X == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+	srand(time(NULL));	//바깥에다 빼야함. 반복문 안에 넣으면 매순간 rand값이 똑같애짐(매 루프마다 그 시점에서의 시간을 난수로 두니까)
+	for (i = 0; i < N; i++) 
+		X[i] = rand() % 10001;
+
+	QueryPerformanceFrequency(&ticsPerSec);	//주파수를 ticsPerSec이라는 구조체변수의 QuadPart int변수에 저장하는 함수
+
+
+	QueryPerformanceCounter(&start);;	//시간간격 측정하고 그 값을 start라는 구조체변수의 QuadPart int변수에 저장하는 함수
+	A = prefixAverages1(X, N);
+	QueryPerformanceCounter(&end);
+
+	diff.QuadPart = end.QuadPart - start.QuadPart;
+	printf("time : %.12f sec\n\n", (double)diff.QuadPart / (double)ticsPerSec.QuadPart);	//둘다 정수형이어서 둘다 double로 형변환 후 나누기
+
+
+
+	QueryPerformanceCounter(&start);
+	B = prefixAverages2(X, N);
+	QueryPerformanceCounter(&end);
+
+	diff.QuadPart = end.QuadPart - start.QuadPart;
+	printf("time : %.12f sec\n\n", (double)diff.QuadPart / (double)ticsPerSec.QuadPart);
+
+
+	free(X);
+	free(A);
+	free(B);
+}
+
+int* prefixAverages1(int* X, int n) {
+	int i,j;
+	int* A;
+	double sum = 0;
+	A = (int*)malloc(sizeof(int) * n);
+	if (A == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+	for (i = 0; i < n; i++) {
+		for (j = 0; j <= i; j++)			
+			sum += X[j];
+		A[i] = (int)(sum / (i + 1) + 0.5);
+		sum = 0;		//sum 초기화 잊지말고
+	}
+
+	return A;
+}
+int* prefixAverages2(int* X, int n) {
+	int i, j;
+	int* A;
+	double sum = 0;
+	A = (int*)malloc(sizeof(int) * n);
+	if (A == NULL) {
+		printf("Not enough memory!\n");
+		return -1;
+	}
+	for (i = 0; i < n; i++) {
+		sum += X[i];
+		A[i] = (int)(sum / (i + 1) + 0.5);
+	}
+
+	return A;
+}

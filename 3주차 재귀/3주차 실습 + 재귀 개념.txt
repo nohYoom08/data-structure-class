@@ -1,0 +1,345 @@
+ㅇ재귀에 대한 개념정리ㅇ
+
+n항 상황파악(문제의 조건, 상황판단)
+주실행종류(출력/반환)
+끝항처리
+부서판단(n항부/재귀부) by 출력결과
+순서판단(재귀/실행)
+=> 맨 위에 언급했듯 부서판단의 결과로 문제의 조건, 상황판단을 정확히 파악하여 확인할 것
+
+요 5가지 구조만 잘 파악하면서 재귀 연습.
+ㄴ이후에 필요한 건 그저 상황판단과 파악을 능숙하게 할 줄 아는 센스 기르기(직접 그려보고 생각하고).
+ㄴ끝항상황판단 매우 중요 => n항과 끝항을 잘 판단하면서 전체적인 구조파악할 것
+=> 결론은 직접 예시를 살펴보면서 규칙을 파악해야한다고 생각! 그게 위 5가지 구조파악이다
+
+
+
+1번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int SUM(int n) {
+	if (n == 1)
+		return 1;		//끝항처리
+	else
+		return n + SUM(n - 1);	//n항부, 실행먼저, 재귀 (실행종류는 반환)
+}
+
+int main() {
+	int N;
+	scanf("%d", &N);
+	printf("%d", SUM(N));
+}
+
+
+
+2번
+#pragma warning (disable:4996)
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int Seat(int n) {
+
+	if (n > 0) {	//끝항처리는 웬만하면 앞에서 처리(이것도 깔끔하긴 한데)
+		Seat(n / 10);	
+		printf("%d\n", n % 10);
+
+	}
+
+	else
+		return 0;
+
+}
+
+int main() {
+	int N;
+	scanf("%d", &N);
+	Seat(N);
+}
+n항 상황파악(문제의 조건, 상황판단)
+주실행종류(출력/반환) => 출력
+끝항처리 => if(n<=0)으로 처리(여기선 뒤에다 했지만)
+부서판단(n항부/재귀부) => n항부 : 340, 재귀부 : 8 (by 문제 hint)
+순서판단(재귀/실행) => 8이 아닌 3을 먼저 출력해야 하므로 재귀가 먼저 와야함
+
+
+
+
+
+
+3번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int Seat(int N) {
+	int M, i, cnt, ten;
+
+	M = N;
+	cnt = 0;
+	ten = 1;
+
+	while (M > 0) {
+		M /= 10;
+		cnt++;
+	}
+
+	for (i = 0; i < cnt - 1; i++)
+		ten *= 10;
+
+	printf("%d\n", N % 10);
+	
+	if(ten>1)
+		Seat(N / 10);
+	else
+		return 0;
+}
+
+int main() {
+	int N;
+	scanf("%d", &N);
+	Seat(N);
+}
+
+
+3번 깔끔본
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int Seat(int n) {
+
+	if (n > 0) {
+		printf("%d\n", n % 10);
+		Seat(n / 10);
+	}
+
+	else
+		return 0;
+
+}
+
+int main() {
+	int N;
+	scanf("%d", &N);
+	Seat(N);
+}
+n항 상황파악(문제의 조건, 상황판단)
+주실행종류(출력/반환) => 출력
+끝항처리 => if(n<=0)으로 처리(여기선 뒤에다 했지만)
+부서판단(n항부/재귀부) => n항부 : 340, 재귀부 : 8 (by 문제 hint)
+순서판단(재귀/실행) => 8을 바로 출력해야 하므로 수행이 먼저
+
+
+
+
+
+4번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int Mx(int X[], int n, int max) {
+	if (X[n - 1] > max)
+		max = X[n - 1];
+	
+	if (n - 1 == 0)
+		return max;
+	else
+		Mx(X, n - 1, max);
+}
+
+int main() {
+	int N,i,X[20],result,max;
+	scanf("%d", &N);
+	
+	for (i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	max = X[N - 1];
+
+	result = Mx(X, N, max);
+
+	printf("%d", result);
+
+}
+
+
+4번(깔끔정답)
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int Mx(int X[], int n) {
+	if (n == 1)
+		return X[0];	//시작과 끝 항상 주의하고
+
+	int max = Mx(X, n - 1);	//얘를 어디다 쓸지 항상 생각(동생들한테 일을 어디다 시킬지).
+		//"최댓값을 구하라"	
+			1. 우선 기본적인 문제의 요구사항 파악 : "최댓값을 구하라" 
+			2. 함수의 기능이 반환인지, 출력인지 먼저 생각
+			3. 동생(재귀함수)을 어디다 쓸지 위치 생각 => 최댓값은 max에 써야겠다.
+			4. 이후 함수 알고리즘은 알고 있는대로ㄱ
+		//재귀
+				
+
+	if (X[n - 1] > max)		//수행
+		max = X[n - 1];
+
+	return max;
+}
+
+int main() {
+	int N, X[20], i;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N; i++)
+		scanf("%d", &X[i]);
+
+	printf("%d", Mx(X, N));
+}
+n항 상황파악(문제의 조건, 상황판단)
+주실행종류(출력/반환) => 반환
+끝항처리 => if(n==1)로 처리
+부서판단(n항부/재귀부) => n항부 : 7, 재귀부 : (4,3,1,2,5) (by 문제 hint)
+순서판단(재귀/실행) => 재귀를 한 값(최댓값)을 n항과 비교해야하므로 재귀 먼저 수행, 이후 실행(n항과 비교)
+
+
+
+
+5번 (정답)
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+void hanoi(int num, char from, char by, char to)
+{
+	if (num == 1)		//끝항 처리
+	{
+		printf("%c %c\n", from, to);
+	}
+	else
+	{
+		hanoi(num - 1, from, to, by);		//재귀1
+		printf("%c %c\n", from, to);		//수행1
+		hanoi(num - 1, by, from, to);		//재귀2
+	}
+}
+
+int main()
+{
+	int n;
+	scanf("%d", &n);
+	hanoi(n, 'A', 'B', 'C');
+
+	return 0;
+}
+//https://youtu.be/aPYE0anPZqI - 여기 참고
+//재귀에 대한 용어정리 하노이탑을 통해 파악 완료
+n항 상황파악(문제의 조건, 상황판단) => 맨 밑 제외원판 옮기고 / 맨 밑 원판 옮기고 / 다시 나머지 원판 옮기고
+주실행종류(출력/반환) => 출력
+끝항처리 => if (num == 1)
+부서판단(n항부/재귀부) => n항부 : 맨 밑 원판, 재귀부 : 나머지 위의 원판
+순서판단(재귀/실행) => 나머지 원판을 옮기고(재귀) / 밑 원판을 옮기고(실행 - 출력) / 나머지 원판을 다시 그 위에다(재귀)
+
+=> 중간과정이 아무리 복잡해도 결국 이 매커니즘 안에서 반복될 뿐, 그 구조를 빠르게 파악해봐야 함
+(나중에 직접 다시 옮기는 과정을 적어보면서 파악)
+
+
+
+
+6번
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int gcd(int a, int b) {
+	
+	if (b % a != 0)
+		gcd(b, a % b);
+	else
+		return a;
+}
+
+int main() {
+	int a, b;
+	scanf("%d %d", &a, &b);
+
+	printf("%d", gcd(a, b));
+}
+너무 단순한 문제라 위에 5가지 구조파악도 굳이 필요X. => 간단한 문제는 그냥 빠르게 센스있게 풀어낼 것
+
+
+
+
+7번 (일단 역순으로 가는 알고리즘)	//배열의 항 개수를 인자에 넣어야 하는지 아닌지 판단
+#pragma warning (disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+int Number(char sr[], int n, char ch) {	//인자배열 자료형 잘 참고해라(int sr[]이라 했다가 안 되는 거였음)
+	int cnt = 0;
+
+	if (sr[n - 1] == ch)
+		cnt++;
+
+	if (n == 1)
+		return cnt;
+
+	else
+		return cnt + Number(sr, n - 1, ch);
+}
+
+int main() {
+	char A[100];
+	char ch;
+
+	scanf("%s", A);
+	getchar();
+	scanf("%c", &ch);
+
+	printf("%d", Number(A, strlen(A), ch));
+}
+
+
+
+7번(GPT)
+#include <stdio.h>
+
+int countChar(char str[], char ch, int i) {
+    if (str[i] == '\0') {
+        return 0;
+    }		//끝항처리
+    
+    int cnt = countChar(str, ch, i + 1);		
+		//이렇게 처음부터 시작해서 i+1로 재귀때려도 됨. 위에 끝항 조건문 붙이고ㅇㅇ
+		//나머지 글자들의 일치여부 수부터 파악 => 재귀먼저    
+    if (str[i] == ch) {
+        cnt++;
+    }		//이후 실행
+    
+    return cnt;
+}
+
+int main() {
+    char str[100];
+    char ch;
+    
+    printf("단어를 입력하세요: ");
+    scanf("%s", str);
+    
+    printf("찾을 문자를 입력하세요: ");
+    scanf(" %c", &ch);
+    
+    int cnt = countChar(str, ch, 0);
+    
+    printf("'%c'가 나타난 횟수는 %d회 입니다.\n", ch, cnt);
+    
+    return 0;
+}
+//지피티 얘도 결국 내 5가지 구조 순서대로 감

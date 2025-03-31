@@ -1,0 +1,98 @@
+1번
+
+9
+5 3 9
+3 8 15
+8 0 2
+2 0 0
+15 0 0
+9 7 10
+7 12 0
+12 0 0
+10 0 0
+3
+RLL
+LL
+LR
+
+
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct Tree {
+	int data;
+	struct Tree* left, *right;
+}Tree;
+
+Tree* createTree(int data) {
+	Tree* new = (Tree*)malloc(sizeof(Tree));
+	new->data = data;
+	new->left = NULL;
+	new->right = NULL;
+
+	return new;
+}
+
+
+void Seek(Tree* tree, int data1, int data2, int data3) {	
+	//main루프문에서 트리노드의 데이터 인수를 여러 개 받는다면 그만큼 함수 인자도 여러개가 되면 되는 것일뿐.
+	if (tree == NULL)
+		return;
+	if (tree->data == data1) {
+		if(data2!=0)
+			tree->left = createTree(data2);
+		if(data3!=0)
+			tree->right = createTree(data3);
+		return;
+	}
+	Seek(tree->left, data1, data2, data3);
+	Seek(tree->right, data1, data2, data3);
+}
+int main() {
+	Tree* root;
+	int N1, N2, data1, data2, data3;
+	char LorR[100];
+	scanf("%d", &N1);
+
+	/*scanf("%d %d %d", &data1, &data2, &data3);
+	root = createTree(data1);
+	root->left = createTree(data2);
+	root->right = createTree(data3);*/	//굳이 이런식으로 노드 다 안 만들어도
+	for (int i = 0; i < N1; i++) {
+
+		scanf("%d %d %d", &data1, &data2, &data3);
+
+		if (i == 0)	//그냥 트리 루프문 한정으로 반복문 안에서 i=0일 때 조건문에서 최초 노드 만들어도 됨
+			root = createTree(data1);
+		Seek(root, data1, data2, data3);
+	}
+	
+	Tree* tmp;	//이중루프를 통한 노드 순회라면 당연히 매개포인터 필요(기본)
+	tmp = root;
+	scanf("%d", &N2);
+	for (int i = 0; i < N2; i++) {
+		scanf("%s", LorR);
+		printf(" %d", tmp->data);
+		for (int j = 0; j < strlen(LorR); j++) {
+			if (LorR[j] == 'L') {
+				tmp = tmp->left;	//노드탐색의 기본 이동방식
+				printf(" %d", tmp->data);
+			}
+			else if (LorR[j] == 'R') {
+				tmp = tmp->right;
+				printf(" %d", tmp->data);
+			}
+		}
+		printf("\n");
+		tmp = root;
+	}
+
+
+	
+	return 0;
+}
+
+

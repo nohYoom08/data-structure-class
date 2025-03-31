@@ -1,0 +1,65 @@
+1번
+#pragma warning(disable:4996)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct Tree {
+	int data;
+	struct Tree* left, *right;
+}Tree;
+
+Tree* createTree(int data, Tree* left, Tree* right) {
+	Tree* new = (Tree*)malloc(sizeof(Tree));
+	new->data = data;
+	new->left = left;
+	new->right = right;
+
+	return new;
+}
+
+void print(Tree* tree) {
+	if (tree != NULL)
+		printf(" %d", tree->data);
+	else
+		return;
+}
+int main() {
+	Tree* F1, * F2, * F3, * F4, * F5, * F6, * F7, * F8;
+	F8 = createTree(80, NULL, NULL);
+	F7 = createTree(130, NULL, NULL);
+	F6 = createTree(120, F7, F8);
+	F5 = createTree(90, NULL, NULL);
+	F4 = createTree(70, NULL, NULL);
+	F3 = createTree(50, NULL, F6);
+	F2 = createTree(30, F4, F5);
+	F1 = createTree(20, F2, F3);
+
+	
+	Tree* tmp;
+	int N;
+	scanf("%d", &N);
+	switch (N) {
+	case 1:tmp = F1; break;
+	case 2:tmp = F2; break;
+	case 3:tmp = F3; break;
+	case 4:tmp = F4; break;
+	case 5:tmp = F5; break;
+	case 6:tmp = F6; break;
+	case 7:tmp = F7; break;
+	case 8:tmp = F8; break;
+	default:tmp = NULL; break;
+	}
+
+	if (tmp != NULL) {
+		print(tmp);	//print함수 안에서 tmp->left, tmp->right 넣을려고 하면 밑에 애들까지 다 순회해버림. 조심
+		print(tmp->left);
+		print(tmp->right);
+	}
+	else
+		printf("-1");	//print인지 printf인지 잘 보고
+	
+	return 0;
+}
+
